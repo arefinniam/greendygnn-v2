@@ -1,0 +1,536 @@
+{
+ "reddit": {
+  "cells": [
+   {
+    "cond": "clean",
+    "W": 1,
+    "kind": "fit",
+    "measured_ms": 182.59,
+    "predicted_ms": 164.24,
+    "err_pct": -10.0
+   },
+   {
+    "cond": "clean",
+    "W": 128,
+    "kind": "fit",
+    "measured_ms": 99.69,
+    "predicted_ms": 91.44,
+    "err_pct": -8.3
+   },
+   {
+    "cond": "clean",
+    "W": 16,
+    "kind": "fit",
+    "measured_ms": 92.17,
+    "predicted_ms": 93.39,
+    "err_pct": 1.3
+   },
+   {
+    "cond": "clean",
+    "W": 2,
+    "kind": "fit",
+    "measured_ms": 129.22,
+    "predicted_ms": 131.42,
+    "err_pct": 1.7
+   },
+   {
+    "cond": "clean",
+    "W": 32,
+    "kind": "fit",
+    "measured_ms": 91.06,
+    "predicted_ms": 90.51,
+    "err_pct": -0.6
+   },
+   {
+    "cond": "clean",
+    "W": 4,
+    "kind": "fit",
+    "measured_ms": 100.3,
+    "predicted_ms": 110.76,
+    "err_pct": 10.4
+   },
+   {
+    "cond": "clean",
+    "W": 64,
+    "kind": "fit",
+    "measured_ms": 93.3,
+    "predicted_ms": 90.56,
+    "err_pct": -2.9
+   },
+   {
+    "cond": "clean",
+    "W": 8,
+    "kind": "fit",
+    "measured_ms": 94.56,
+    "predicted_ms": 99.53,
+    "err_pct": 5.3
+   },
+   {
+    "cond": "c1_1000mbit",
+    "W": 16,
+    "kind": "fit",
+    "measured_ms": 128.49,
+    "predicted_ms": 131.21,
+    "err_pct": 2.1
+   },
+   {
+    "cond": "c1_100mbit",
+    "W": 16,
+    "kind": "fit",
+    "measured_ms": 507.5,
+    "predicted_ms": 500.21,
+    "err_pct": -1.4
+   },
+   {
+    "cond": "c1_200mbit",
+    "W": 16,
+    "kind": "fit",
+    "measured_ms": 288.62,
+    "predicted_ms": 294.68,
+    "err_pct": 2.1
+   },
+   {
+    "cond": "c1_500mbit",
+    "W": 16,
+    "kind": "fit",
+    "measured_ms": 165.33,
+    "predicted_ms": 171.37,
+    "err_pct": 3.6
+   },
+   {
+    "cond": "c1_50mbit",
+    "W": 16,
+    "kind": "fit",
+    "measured_ms": 916.9,
+    "predicted_ms": 911.2,
+    "err_pct": -0.6
+   },
+   {
+    "cond": "c4_10ms",
+    "W": 16,
+    "kind": "fit",
+    "measured_ms": 204.39,
+    "predicted_ms": 198.76,
+    "err_pct": -2.8
+   },
+   {
+    "cond": "c4_20ms",
+    "W": 16,
+    "kind": "fit",
+    "measured_ms": 296.96,
+    "predicted_ms": 304.13,
+    "err_pct": 2.4
+   },
+   {
+    "cond": "c4_5ms",
+    "W": 16,
+    "kind": "fit",
+    "measured_ms": 146.77,
+    "predicted_ms": 146.08,
+    "err_pct": -0.5
+   },
+   {
+    "cond": "c1_200mbit",
+    "W": 32,
+    "kind": "holdout",
+    "measured_ms": 288.57,
+    "predicted_ms": 246.24,
+    "err_pct": -14.7
+   },
+   {
+    "cond": "c1_200mbit",
+    "W": 4,
+    "kind": "holdout",
+    "measured_ms": 574.72,
+    "predicted_ms": 586.54,
+    "err_pct": 2.1
+   },
+   {
+    "cond": "c1_200mbit",
+    "W": 8,
+    "kind": "holdout",
+    "measured_ms": 332.04,
+    "predicted_ms": 397.88,
+    "err_pct": 19.8
+   },
+   {
+    "cond": "c1_50mbit",
+    "W": 32,
+    "kind": "holdout",
+    "measured_ms": 927.11,
+    "predicted_ms": 723.21,
+    "err_pct": -22.0
+   },
+   {
+    "cond": "c1_50mbit",
+    "W": 4,
+    "kind": "holdout",
+    "measured_ms": 2273.63,
+    "predicted_ms": 2043.81,
+    "err_pct": -10.1
+   },
+   {
+    "cond": "c1_50mbit",
+    "W": 8,
+    "kind": "holdout",
+    "measured_ms": 1179.31,
+    "predicted_ms": 1311.66,
+    "err_pct": 11.2
+   },
+   {
+    "cond": "c4_10ms",
+    "W": 32,
+    "kind": "holdout",
+    "measured_ms": 211.08,
+    "predicted_ms": 215.11,
+    "err_pct": 1.9
+   },
+   {
+    "cond": "c4_10ms",
+    "W": 4,
+    "kind": "holdout",
+    "measured_ms": 191.18,
+    "predicted_ms": 227.62,
+    "err_pct": 19.1
+   },
+   {
+    "cond": "c4_10ms",
+    "W": 8,
+    "kind": "holdout",
+    "measured_ms": 147.6,
+    "predicted_ms": 204.96,
+    "err_pct": 38.9
+   }
+  ],
+  "mean_abs_err_fit_pct": 3.5,
+  "mean_abs_err_holdout_pct": 15.5,
+  "n_fit": 16,
+  "n_holdout": 9,
+  "rank_agreement": [
+   {
+    "cond": "c1_200mbit",
+    "Ws": [
+     4,
+     8,
+     16,
+     32
+    ],
+    "best_w_measured": 32,
+    "best_w_predicted": 32,
+    "best_w_match": true,
+    "spearman": 1.0
+   },
+   {
+    "cond": "c1_50mbit",
+    "Ws": [
+     4,
+     8,
+     16,
+     32
+    ],
+    "best_w_measured": 16,
+    "best_w_predicted": 32,
+    "best_w_match": false,
+    "spearman": 0.8
+   },
+   {
+    "cond": "c4_10ms",
+    "Ws": [
+     4,
+     8,
+     16,
+     32
+    ],
+    "best_w_measured": 8,
+    "best_w_predicted": 16,
+    "best_w_match": false,
+    "spearman": 0.0
+   },
+   {
+    "cond": "clean",
+    "Ws": [
+     1,
+     2,
+     4,
+     8,
+     16,
+     32,
+     64,
+     128
+    ],
+    "best_w_measured": 32,
+    "best_w_predicted": 32,
+    "best_w_match": true,
+    "spearman": 0.881
+   }
+  ],
+  "best_w_match_rate": 0.5
+ },
+ "ogbn-products": {
+  "cells": [
+   {
+    "cond": "clean",
+    "W": 1,
+    "kind": "fit",
+    "measured_ms": 150.68,
+    "predicted_ms": 136.16,
+    "err_pct": -9.6
+   },
+   {
+    "cond": "clean",
+    "W": 128,
+    "kind": "fit",
+    "measured_ms": 132.64,
+    "predicted_ms": 130.96,
+    "err_pct": -1.3
+   },
+   {
+    "cond": "clean",
+    "W": 16,
+    "kind": "fit",
+    "measured_ms": 132.32,
+    "predicted_ms": 131.63,
+    "err_pct": -0.5
+   },
+   {
+    "cond": "clean",
+    "W": 2,
+    "kind": "fit",
+    "measured_ms": 111.61,
+    "predicted_ms": 134.19,
+    "err_pct": 20.2
+   },
+   {
+    "cond": "clean",
+    "W": 32,
+    "kind": "fit",
+    "measured_ms": 133.4,
+    "predicted_ms": 131.31,
+    "err_pct": -1.6
+   },
+   {
+    "cond": "clean",
+    "W": 4,
+    "kind": "fit",
+    "measured_ms": 137.11,
+    "predicted_ms": 132.94,
+    "err_pct": -3.0
+   },
+   {
+    "cond": "clean",
+    "W": 64,
+    "kind": "fit",
+    "measured_ms": 135.32,
+    "predicted_ms": 131.1,
+    "err_pct": -3.1
+   },
+   {
+    "cond": "clean",
+    "W": 8,
+    "kind": "fit",
+    "measured_ms": 134.89,
+    "predicted_ms": 132.14,
+    "err_pct": -2.0
+   },
+   {
+    "cond": "c1_1000mbit",
+    "W": 16,
+    "kind": "fit",
+    "measured_ms": 222.82,
+    "predicted_ms": 219.67,
+    "err_pct": -1.4
+   },
+   {
+    "cond": "c1_100mbit",
+    "W": 16,
+    "kind": "fit",
+    "measured_ms": 1154.27,
+    "predicted_ms": 1161.01,
+    "err_pct": 0.6
+   },
+   {
+    "cond": "c1_200mbit",
+    "W": 16,
+    "kind": "fit",
+    "measured_ms": 631.56,
+    "predicted_ms": 636.68,
+    "err_pct": 0.8
+   },
+   {
+    "cond": "c1_500mbit",
+    "W": 16,
+    "kind": "fit",
+    "measured_ms": 316.45,
+    "predicted_ms": 322.11,
+    "err_pct": 1.8
+   },
+   {
+    "cond": "c1_50mbit",
+    "W": 16,
+    "kind": "fit",
+    "measured_ms": 2248.17,
+    "predicted_ms": 2209.46,
+    "err_pct": -1.7
+   },
+   {
+    "cond": "c4_10ms",
+    "W": 16,
+    "kind": "fit",
+    "measured_ms": 233.96,
+    "predicted_ms": 232.27,
+    "err_pct": -0.7
+   },
+   {
+    "cond": "c4_20ms",
+    "W": 16,
+    "kind": "fit",
+    "measured_ms": 341.34,
+    "predicted_ms": 332.9,
+    "err_pct": -2.5
+   },
+   {
+    "cond": "c4_5ms",
+    "W": 16,
+    "kind": "fit",
+    "measured_ms": 170.3,
+    "predicted_ms": 181.95,
+    "err_pct": 6.8
+   },
+   {
+    "cond": "c1_200mbit",
+    "W": 32,
+    "kind": "holdout",
+    "measured_ms": 631.54,
+    "predicted_ms": 650.0,
+    "err_pct": 2.9
+   },
+   {
+    "cond": "c1_200mbit",
+    "W": 4,
+    "kind": "holdout",
+    "measured_ms": 622.18,
+    "predicted_ms": 582.66,
+    "err_pct": -6.4
+   },
+   {
+    "cond": "c1_200mbit",
+    "W": 8,
+    "kind": "holdout",
+    "measured_ms": 629.4,
+    "predicted_ms": 619.21,
+    "err_pct": -1.6
+   },
+   {
+    "cond": "c1_50mbit",
+    "W": 32,
+    "kind": "holdout",
+    "measured_ms": 2256.25,
+    "predicted_ms": 2262.06,
+    "err_pct": 0.3
+   },
+   {
+    "cond": "c1_50mbit",
+    "W": 4,
+    "kind": "holdout",
+    "measured_ms": 2191.7,
+    "predicted_ms": 1996.04,
+    "err_pct": -8.9
+   },
+   {
+    "cond": "c1_50mbit",
+    "W": 8,
+    "kind": "holdout",
+    "measured_ms": 2260.42,
+    "predicted_ms": 2140.16,
+    "err_pct": -5.3
+   },
+   {
+    "cond": "c4_10ms",
+    "W": 32,
+    "kind": "holdout",
+    "measured_ms": 218.62,
+    "predicted_ms": 236.69,
+    "err_pct": 8.3
+   },
+   {
+    "cond": "c4_10ms",
+    "W": 4,
+    "kind": "holdout",
+    "measured_ms": 244.0,
+    "predicted_ms": 210.06,
+    "err_pct": -13.9
+   },
+   {
+    "cond": "c4_10ms",
+    "W": 8,
+    "kind": "holdout",
+    "measured_ms": 242.17,
+    "predicted_ms": 225.02,
+    "err_pct": -7.1
+   }
+  ],
+  "mean_abs_err_fit_pct": 3.6,
+  "mean_abs_err_holdout_pct": 6.1,
+  "n_fit": 16,
+  "n_holdout": 9,
+  "rank_agreement": [
+   {
+    "cond": "c1_200mbit",
+    "Ws": [
+     4,
+     8,
+     16,
+     32
+    ],
+    "best_w_measured": 4,
+    "best_w_predicted": 4,
+    "best_w_match": true,
+    "spearman": 0.8
+   },
+   {
+    "cond": "c1_50mbit",
+    "Ws": [
+     4,
+     8,
+     16,
+     32
+    ],
+    "best_w_measured": 4,
+    "best_w_predicted": 4,
+    "best_w_match": true,
+    "spearman": 0.4
+   },
+   {
+    "cond": "c4_10ms",
+    "Ws": [
+     4,
+     8,
+     16,
+     32
+    ],
+    "best_w_measured": 32,
+    "best_w_predicted": 4,
+    "best_w_match": false,
+    "spearman": -1.0
+   },
+   {
+    "cond": "clean",
+    "Ws": [
+     1,
+     2,
+     4,
+     8,
+     16,
+     32,
+     64,
+     128
+    ],
+    "best_w_measured": 2,
+    "best_w_predicted": 128,
+    "best_w_match": false,
+    "spearman": 0.262
+   }
+  ],
+  "best_w_match_rate": 0.5
+ }
+}

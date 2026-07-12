@@ -1,0 +1,139 @@
+{
+ "_provenance": {
+  "dataset": "reddit",
+  "calib_dir": "/home/arefin/greendygnn_work/calib_runs",
+  "warmup": 2,
+  "generated_by": "fit_calibration.py",
+  "clean_Ws": [
+   1,
+   2,
+   4,
+   8,
+   16,
+   32,
+   64,
+   128
+  ],
+  "h_r2": 0.8604,
+  "rebuild_r2": 0.7906,
+  "kappa_table": {
+   "1000mbit": {
+    "kappa_inband": 0.81,
+    "others_ratio": 1.16,
+    "step_time_ratio": 1.394
+   },
+   "100mbit": {
+    "kappa_inband": 8.47,
+    "others_ratio": 5.39,
+    "step_time_ratio": 5.506
+   },
+   "200mbit": {
+    "kappa_inband": 2.73,
+    "others_ratio": 3.43,
+    "step_time_ratio": 3.131
+   },
+   "500mbit": {
+    "kappa_inband": 1.28,
+    "others_ratio": 1.71,
+    "step_time_ratio": 1.794
+   },
+   "50mbit": {
+    "kappa_inband": 13.97,
+    "others_ratio": 15.53,
+    "step_time_ratio": 9.947
+   }
+  },
+  "sigma_table": {
+   "10": {
+    "rtt_delta_ms": 32.38,
+    "step_time_ratio": 2.217,
+    "fetch_time_ratio": 1.91
+   },
+   "20": {
+    "rtt_delta_ms": 76.2,
+    "step_time_ratio": 3.222,
+    "fetch_time_ratio": 2.623
+   },
+   "5": {
+    "rtt_delta_ms": 13.96,
+    "step_time_ratio": 1.592,
+    "fetch_time_ratio": 1.415
+   }
+  }
+ },
+ "t_init_row": 0.0,
+ "t_pay_row": 9.95324757963114e-06,
+ "rpc_rows": 64,
+ "q_depth": 4,
+ "a": 0.0,
+ "b": 0.077248,
+ "c": 0.6986,
+ "t_bulk_row": 7.12740817891411e-06,
+ "alpha_crit": 0.35,
+ "hmin": 0.8077,
+ "hmax": 0.7041,
+ "w_half": 3.375,
+ "gamma_h": 8.0,
+ "t_base": 0.00335,
+ "feat_bytes": 2408,
+ "R_per_batch": 37741.1,
+ "batches_per_epoch": 20,
+ "n_epochs": 30,
+ "n_hot": 100000,
+ "P": 4,
+ "U0": 53355.4,
+ "u_exp": 0.1942,
+ "reuse_frac": 0.5713,
+ "p_cpu_w": 109.0,
+ "p_gpu_active_w": 65.1,
+ "p_gpu_idle_w": 30.0,
+ "gpu_active_frac": 0.6,
+ "c_ar": 0.063466,
+ "alloc_tilt": 0.8,
+ "alpha_rpc": 0.00467,
+ "beta": 1.4e-09,
+ "gamma_c": 2.01e-10,
+ "t_c": 0.080656,
+ "alpha_reb": 0.0,
+ "phi_miss": 0.062712,
+ "phi_reb": 0.469957,
+ "phi_delay": 1.105032,
+ "r0_delay": 0.094355,
+ "beta_ov": 0.0,
+ "_coupling_fit": {
+  "msle": 0.002269,
+  "mean_abs_err_fit_pct": 3.5,
+  "n_fit_cells": 16,
+  "seed": 0,
+  "bounds": {
+   "t_c": [
+    0.001,
+    0.3
+   ],
+   "alpha_reb": [
+    0.0,
+    2.0
+   ],
+   "phi_miss": [
+    0.0,
+    1.0
+   ],
+   "phi_reb": [
+    0.0,
+    1.0
+   ],
+   "phi_delay": [
+    0.0,
+    2.0
+   ],
+   "r0_delay": [
+    0.0,
+    20.0
+   ],
+   "beta_ov": [
+    0.0,
+    3.0
+   ]
+  }
+ }
+}

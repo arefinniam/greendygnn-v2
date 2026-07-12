@@ -1,0 +1,139 @@
+{
+ "_provenance": {
+  "dataset": "ogbn-products",
+  "calib_dir": "/home/arefin/greendygnn_work/calib_runs",
+  "warmup": 2,
+  "generated_by": "fit_calibration.py",
+  "clean_Ws": [
+   1,
+   2,
+   4,
+   8,
+   16,
+   32,
+   64,
+   128
+  ],
+  "h_r2": 0.9879,
+  "rebuild_r2": 0.5158,
+  "kappa_table": {
+   "1000mbit": {
+    "kappa_inband": 2.89,
+    "others_ratio": 1.11,
+    "step_time_ratio": 1.684
+   },
+   "100mbit": {
+    "kappa_inband": 31.8,
+    "others_ratio": 3.28,
+    "step_time_ratio": 8.723
+   },
+   "200mbit": {
+    "kappa_inband": 14.33,
+    "others_ratio": 2.09,
+    "step_time_ratio": 4.773
+   },
+   "500mbit": {
+    "kappa_inband": 5.62,
+    "others_ratio": 1.33,
+    "step_time_ratio": 2.392
+   },
+   "50mbit": {
+    "kappa_inband": 66.74,
+    "others_ratio": 5.76,
+    "step_time_ratio": 16.99
+   }
+  },
+  "sigma_table": {
+   "10": {
+    "rtt_delta_ms": 37.28,
+    "step_time_ratio": 1.768,
+    "fetch_time_ratio": 1.781
+   },
+   "20": {
+    "rtt_delta_ms": 89.21,
+    "step_time_ratio": 2.58,
+    "fetch_time_ratio": 2.484
+   },
+   "5": {
+    "rtt_delta_ms": 14.24,
+    "step_time_ratio": 1.287,
+    "fetch_time_ratio": 1.376
+   }
+  }
+ },
+ "t_init_row": 0.0,
+ "t_pay_row": 1.2495774570766835e-06,
+ "rpc_rows": 64,
+ "q_depth": 4,
+ "a": 0.0,
+ "b": 0.24798,
+ "c": 0.3518,
+ "t_bulk_row": 1.849282247366572e-06,
+ "alpha_crit": 0.35,
+ "hmin": 0.4323,
+ "hmax": 0.7666,
+ "w_half": 3.206,
+ "gamma_h": 2.3611,
+ "t_base": 0.0001,
+ "feat_bytes": 400,
+ "R_per_batch": 57407.7,
+ "batches_per_epoch": 25,
+ "n_epochs": 30,
+ "n_hot": 100000,
+ "P": 4,
+ "U0": 83182.3,
+ "u_exp": 0.4658,
+ "reuse_frac": 0.1474,
+ "p_cpu_w": 107.2,
+ "p_gpu_active_w": 63.1,
+ "p_gpu_idle_w": 30.0,
+ "gpu_active_frac": 0.6,
+ "c_ar": 0.03809,
+ "alloc_tilt": 0.8,
+ "alpha_rpc": 0.00467,
+ "beta": 1.4e-09,
+ "gamma_c": 2.01e-10,
+ "t_c": 0.130731,
+ "alpha_reb": 0.021891,
+ "phi_miss": 0.507072,
+ "phi_reb": 0.141643,
+ "phi_delay": 0.15298,
+ "r0_delay": 0.289548,
+ "beta_ov": 0.313122,
+ "_coupling_fit": {
+  "msle": 0.003314,
+  "mean_abs_err_fit_pct": 3.6,
+  "n_fit_cells": 16,
+  "seed": 0,
+  "bounds": {
+   "t_c": [
+    0.001,
+    0.3
+   ],
+   "alpha_reb": [
+    0.0,
+    2.0
+   ],
+   "phi_miss": [
+    0.0,
+    1.0
+   ],
+   "phi_reb": [
+    0.0,
+    1.0
+   ],
+   "phi_delay": [
+    0.0,
+    2.0
+   ],
+   "r0_delay": [
+    0.0,
+    20.0
+   ],
+   "beta_ov": [
+    0.0,
+    3.0
+   ]
+  }
+ }
+}
