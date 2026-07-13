@@ -93,7 +93,11 @@ class FeatureCache:
         self._fetch_count = 0
 
         # === V2 I1: per-owner fetch event log ===
-        # each event: (t_wall, owner_pid, rows, bytes, rtt_s)
+        # each event: (t_wall, owner_pid, rows, bytes, rtt_s, lock_wait_s)
+        # rtt_s covers the RPC pull ONLY; dist_lock acquisition wait is the
+        # separate lock_wait_s field (plan item 3: without the split, large
+        # rebuilds holding the lock inflate miss RTTs and masquerade as
+        # network congestion — the audit's feedback-loop contamination).
         # single writer (worker thread); readers snapshot under _events_lock.
         self.fetch_events = deque(maxlen=4096)
         self._events_lock = threading.Lock()
@@ -287,10 +291,15 @@ class FeatureCache:
             t0 = time.perf_counter()
             if self.dist_lock:
                 with self.dist_lock:
+                    lock_s = time.perf_counter() - t0
+                    t1 = time.perf_counter()
                     feats_o = g.ndata["features"][nodes_o]
+                    rtt = time.perf_counter() - t1
             else:
+                lock_s = 0.0
+                t1 = time.perf_counter()
                 feats_o = g.ndata["features"][nodes_o]
-            rtt = time.perf_counter() - t0
+                rtt = time.perf_counter() - t1
             if scatter:
                 out[dest_rows_cpu[sel].to(device)] = feats_o.to(
                     device, non_blocking=True)
@@ -300,7 +309,8 @@ class FeatureCache:
             if pid != self.local_owner:
                 nbytes = rows * self.feat_dim * self._elem_size
                 with self._events_lock:
-                    self.fetch_events.append((now, int(pid), rows, nbytes, rtt))
+                    self.fetch_events.append(
+                        (now, int(pid), rows, nbytes, rtt, lock_s))
                     self.remote_fetch_ops += 1
                     self.remote_rows_fetched += rows
                     self.remote_bytes_fetched += nbytes
@@ -328,24 +338,29 @@ class FeatureCache:
         """Per-owner aggregate of recent fetch events.
 
         Returns {pid: {"n": int, "rows": int, "bytes": int,
-                       "mean_rtt": float, "mean_rtt_per_row": float}}
+                       "mean_rtt": float, "mean_rtt_per_row": float,
+                       "mean_lock_s": float}}
+        mean_rtt is the RPC pull only; dist_lock wait is reported separately
+        as mean_lock_s (see fetch_events comment).
         """
         events = self.snapshot_fetch_events()
         if last_n is not None:
             events = events[-last_n:]
         stats = {}
-        for (_t, pid, rows, nbytes, rtt) in events:
+        for (_t, pid, rows, nbytes, rtt, lock_s) in events:
             s = stats.setdefault(pid, [0, 0, 0, 0.0, 0.0])
             s[0] += 1
             s[1] += rows
             s[2] += nbytes
             s[3] += rtt
+            s[4] += lock_s
         out = {}
-        for pid, (n, rows, nbytes, rtt_sum, _) in stats.items():
+        for pid, (n, rows, nbytes, rtt_sum, lock_sum) in stats.items():
             out[pid] = {
                 "n": n, "rows": rows, "bytes": nbytes,
                 "mean_rtt": rtt_sum / n if n else 0.0,
                 "mean_rtt_per_row": (rtt_sum / rows) if rows else 0.0,
+                "mean_lock_s": lock_sum / n if n else 0.0,
             }
         return out
 

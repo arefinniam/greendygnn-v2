@@ -46,6 +46,16 @@ def main(args):
     cpu_valid = check_cpu_monitor(cpu_mon, pid)
     profiler.set_meta(cpu_energy_valid=bool(cpu_valid))
 
+    fr = None
+    if args.flight_recorder:
+        import os
+        from flight_recorder import FlightRecorder
+        os.makedirs(args.out_dir, exist_ok=True)
+        fr = FlightRecorder(os.path.join(args.out_dir,
+                                         f"flight_part{pid}.jsonl"),
+                            gpu_index=dev_idx)
+        fr.start()
+
     sampler = dgl.dataloading.NeighborSampler(
         [int(f) for f in args.fan_out.split(",")])
     try:
@@ -118,6 +128,8 @@ def main(args):
                   seed=args.seed, extra={"cpu_energy_valid": cpu_valid})
     profiler.save()
     gpu_mon.stop(); cpu_mon.stop()
+    if fr:
+        fr.stop()
 
 
 if __name__ == "__main__":
@@ -134,4 +146,6 @@ if __name__ == "__main__":
         ("--seed", int, 0), ("--gpu_energy_scope", str, "all"),
     ]:
         p.add_argument(a, type=t, default=d)
+    p.add_argument("--flight_recorder", action="store_true",
+                   help="1Hz node time series (NIC/CPU/RAPL/GPU) to out_dir")
     main(p.parse_args())

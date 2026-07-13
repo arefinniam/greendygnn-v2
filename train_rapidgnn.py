@@ -58,6 +58,13 @@ def main(args):
     profiler.set_meta(cpu_energy_valid=bool(cpu_valid))
 
     os.makedirs(args.out_dir, exist_ok=True)
+    fr = None
+    if args.flight_recorder:
+        from flight_recorder import FlightRecorder
+        fr = FlightRecorder(os.path.join(args.out_dir,
+                                         f"flight_part{pid}.jsonl"),
+                            gpu_index=dev_idx)
+        fr.start()
     set_gpu_frequency("min", dev_idx)
     dist_lock = threading.Lock()
 
@@ -166,6 +173,8 @@ def main(args):
                          **pf.get_health_counters()})
     profiler.save()
     gpu_mon.stop(); cpu_mon.stop()
+    if fr:
+        fr.stop()
     pf.stop()
 
 
@@ -186,4 +195,6 @@ if __name__ == "__main__":
     ]:
         p.add_argument(a, type=t, default=d)
     p.add_argument("--sync_cache", action="store_true")
+    p.add_argument("--flight_recorder", action="store_true",
+                   help="1Hz node time series (NIC/CPU/RAPL/GPU) to out_dir")
     main(p.parse_args())

@@ -216,10 +216,11 @@ def test_fetch_event_owner_attribution():
     owners_seen = sorted({e[1] for e in events})
     assert owners_seen == [1, 2, 3]           # local owner 0 NOT recorded
     rows_by_owner = {}
-    for (_t, pid, rows, nbytes, rtt) in events:
+    for (_t, pid, rows, nbytes, rtt, lock_s) in events:
         rows_by_owner[pid] = rows_by_owner.get(pid, 0) + rows
         assert nbytes == rows * 3 * 4         # feat_dim=3 float32
         assert rtt >= 0.0
+        assert lock_s >= 0.0                  # lock wait split from wire time
     assert rows_by_owner == {1: 3, 2: 3, 3: 3}
 
     stats = cache.get_owner_latency_stats()

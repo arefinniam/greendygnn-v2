@@ -100,7 +100,7 @@ def test_get_features_hit_miss_content_and_counters():
     assert cache.local_misses == 2         # 12, 0
     events = cache.snapshot_fetch_events()
     assert len(events) == 1                # one remote owner pulled
-    _t, pid, rows, _b, _rtt = events[0]
+    _t, pid, rows, _b, _rtt, _lock = events[0]
     assert pid == 2 and rows == 1          # 6 % 4 == 2
     assert cache.get_step_remote_hit_rate() == 2 / 3 * 100
 

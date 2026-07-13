@@ -75,11 +75,23 @@ def main(args):
     if args.uniform_alloc:
         label += "_uniform_alloc"
 
-    controller = GreenDyGNNController(
-        num_partitions=nparts, local_pid=pid,
-        checkpoint_path=(args.checkpoint or None),
-        mode=args.controller_mode, seed=args.seed,
-        khat_cap=args.khat_cap)
+    if args.w_script:
+        # Transition-cost experiment mode (RESEARCH_PLAN_v2 item 2): a
+        # predetermined W schedule replaces the DQN so switch costs are
+        # measured at exogenous, randomized boundaries.
+        if args.no_rl:
+            raise ValueError("--w_script needs the W path active; "
+                             "drop --no_rl")
+        from scripted_controller import ScriptedWController
+        controller = ScriptedWController(args.w_script,
+                                         initial_w=args.window_size)
+        label = "scripted_w"
+    else:
+        controller = GreenDyGNNController(
+            num_partitions=nparts, local_pid=pid,
+            checkpoint_path=(args.checkpoint or None),
+            mode=args.controller_mode, seed=args.seed,
+            khat_cap=args.khat_cap)
 
     profiler = TrainingProfiler(label, pid, output_dir=args.out_dir)
     profiler.set_meta(seed=args.seed, label=label, graph=args.graph_name,
@@ -87,7 +99,8 @@ def main(args):
                       cache_size=args.cache_size, no_rl=bool(args.no_rl),
                       uniform_alloc=bool(args.uniform_alloc),
                       checkpoint=args.checkpoint or "",
-                      controller_mode=args.controller_mode)
+                      controller_mode=args.controller_mode,
+                      w_script=args.w_script or "")
 
     gpu_mon = MultiGPUEnergyMonitor(tick=0.05, scope=args.gpu_energy_scope,
                                     device_index=dev_idx)
@@ -97,6 +110,13 @@ def main(args):
     profiler.set_meta(cpu_energy_valid=bool(cpu_valid))
 
     os.makedirs(args.out_dir, exist_ok=True)
+    fr = None
+    if args.flight_recorder:
+        from flight_recorder import FlightRecorder
+        fr = FlightRecorder(os.path.join(args.out_dir,
+                                         f"flight_part{pid}.jsonl"),
+                            gpu_index=dev_idx)
+        fr.start()
     set_gpu_frequency("min", dev_idx)
     dist_lock = threading.Lock()
 
@@ -213,6 +233,8 @@ def main(args):
                          **pf.get_health_counters()})
     profiler.save()
     gpu_mon.stop(); cpu_mon.stop()
+    if fr:
+        fr.stop()
     pf.stop()
 
 
@@ -233,9 +255,12 @@ if __name__ == "__main__":
         ("--controller_mode", str, "deploy"),
         ("--khat_cap", float, 8.0),
         ("--gpu_energy_scope", str, "all"),
+        ("--w_script", str, ""),
     ]:
         p.add_argument(a, type=t, default=d)
     p.add_argument("--sync_cache", action="store_true")
+    p.add_argument("--flight_recorder", action="store_true",
+                   help="1Hz node time series (NIC/CPU/RAPL/GPU) to out_dir")
     p.add_argument("--no_rl", action="store_true",
                    help="Ablation: static W (allocation still active)")
     p.add_argument("--uniform_alloc", action="store_true",
