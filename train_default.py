@@ -53,7 +53,7 @@ def main(args):
         os.makedirs(args.out_dir, exist_ok=True)
         fr = FlightRecorder(os.path.join(args.out_dir,
                                          f"flight_part{pid}.jsonl"),
-                            gpu_index=dev_idx)
+                            gpu_index=dev_idx, rank=pid)
         fr.start()
 
     sampler = dgl.dataloading.NeighborSampler(

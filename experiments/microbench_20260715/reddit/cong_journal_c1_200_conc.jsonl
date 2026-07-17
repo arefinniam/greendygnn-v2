@@ -1,0 +1,32 @@
+{"action": "apply_c1", "cmd": "sudo tc qdisc del dev eno1 root 2>/dev/null || true; sudo tc qdisc add dev eno1 root tbf rate 200mbit burst 32kbit latency 400ms", "node": "gnn4", "rc": 0, "t": 1784166427.476472}
+{"action": "verify_applied", "cmd": "tc qdisc show dev eno1", "node": "gnn4", "rc": 0, "t": 1784166427.9078734}
+{"action": "applied", "cls": "c1", "delay": null, "jitter": null, "loss": null, "rate": "200mbit", "t": 1784166427.907921, "victims": ["gnn4"]}
+{"action": "teardown", "cmd": "sudo tc qdisc del dev eno1 root 2>/dev/null || true", "node": "gnn1", "rc": 0, "t": 1784171827.9775238}
+{"action": "teardown", "cmd": "pkill -9 -x iperf3 2>/dev/null || true", "node": "gnn1", "rc": 0, "t": 1784171828.002177}
+{"action": "teardown", "cmd": "sudo tc qdisc del dev eno1 root 2>/dev/null || true", "node": "gnn2", "rc": 0, "t": 1784171828.42799}
+{"action": "teardown", "cmd": "pkill -9 -x iperf3 2>/dev/null || true", "node": "gnn2", "rc": 0, "t": 1784171828.813717}
+{"action": "teardown", "cmd": "sudo tc qdisc del dev eno1 root 2>/dev/null || true", "node": "gnn3", "rc": 0, "t": 1784171829.2523596}
+{"action": "teardown", "cmd": "pkill -9 -x iperf3 2>/dev/null || true", "node": "gnn3", "rc": 0, "t": 1784171829.6574602}
+{"action": "teardown", "cmd": "sudo tc qdisc del dev eno1 root 2>/dev/null || true", "node": "gnn4", "rc": 0, "t": 1784171830.1261575}
+{"action": "teardown", "cmd": "pkill -9 -x iperf3 2>/dev/null || true", "node": "gnn4", "rc": 0, "t": 1784171830.5470927}
+{"action": "verify_teardown", "cmd": "tc qdisc show dev eno1", "node": "gnn1", "rc": 0, "t": 1784171830.5513952}
+{"action": "verify_teardown", "cmd": "tc qdisc show dev eno1", "node": "gnn2", "rc": 0, "t": 1784171830.9311922}
+{"action": "verify_teardown", "cmd": "tc qdisc show dev eno1", "node": "gnn3", "rc": 0, "t": 1784171831.3118796}
+{"action": "verify_teardown", "cmd": "tc qdisc show dev eno1", "node": "gnn4", "rc": 0, "t": 1784171831.7119315}
+{"action": "teardown_verified", "ok": true, "t": 1784171831.71204}
+{"action": "apply_c1", "cmd": "sudo tc qdisc del dev eno1 root 2>/dev/null || true; sudo tc qdisc add dev eno1 root tbf rate 200mbit burst 32kbit latency 400ms", "node": "gnn4", "rc": 0, "t": 1784227822.5658996}
+{"action": "verify_applied", "cmd": "tc qdisc show dev eno1", "node": "gnn4", "rc": 0, "t": 1784227822.9871593}
+{"action": "applied", "cls": "c1", "delay": null, "jitter": null, "loss": null, "rate": "200mbit", "t": 1784227822.987237, "victims": ["gnn4"]}
+{"action": "teardown", "cmd": "sudo tc qdisc del dev eno1 root 2>/dev/null || true", "node": "gnn1", "rc": 0, "t": 1784229784.073159}
+{"action": "teardown", "cmd": "pkill -9 -x iperf3 2>/dev/null || true", "node": "gnn1", "rc": 0, "t": 1784229784.0992293}
+{"action": "teardown", "cmd": "sudo tc qdisc del dev eno1 root 2>/dev/null || true", "node": "gnn2", "rc": 0, "t": 1784229784.54699}
+{"action": "teardown", "cmd": "pkill -9 -x iperf3 2>/dev/null || true", "node": "gnn2", "rc": 0, "t": 1784229784.9378371}
+{"action": "teardown", "cmd": "sudo tc qdisc del dev eno1 root 2>/dev/null || true", "node": "gnn3", "rc": 0, "t": 1784229785.3291202}
+{"action": "teardown", "cmd": "pkill -9 -x iperf3 2>/dev/null || true", "node": "gnn3", "rc": 0, "t": 1784229785.7207372}
+{"action": "teardown", "cmd": "sudo tc qdisc del dev eno1 root 2>/dev/null || true", "node": "gnn4", "rc": 0, "t": 1784229786.178833}
+{"action": "teardown", "cmd": "pkill -9 -x iperf3 2>/dev/null || true", "node": "gnn4", "rc": 0, "t": 1784229786.6340265}
+{"action": "verify_teardown", "cmd": "tc qdisc show dev eno1", "node": "gnn1", "rc": 0, "t": 1784229786.6385822}
+{"action": "verify_teardown", "cmd": "tc qdisc show dev eno1", "node": "gnn2", "rc": 0, "t": 1784229787.0147376}
+{"action": "verify_teardown", "cmd": "tc qdisc show dev eno1", "node": "gnn3", "rc": 0, "t": 1784229787.3876283}
+{"action": "verify_teardown", "cmd": "tc qdisc show dev eno1", "node": "gnn4", "rc": 0, "t": 1784229787.824754}
+{"action": "teardown_verified", "ok": true, "t": 1784229787.8248618}

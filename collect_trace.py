@@ -1,39 +1,44 @@
 #!/usr/bin/env python3
 """Collect per-batch remote-access traces (RESEARCH_PLAN_v2 item 3, Layer 1).
 
-Runs the PRODUCTION sampling path (same DistSampler, same seeded shuffle, same
-node_split) with no training, and dumps every batch's remote node IDs +
-owners. A trace collected with seed s is therefore byte-identical to the
-access stream a training run with seed s consumes — which is what makes the
-Layer-1 cache engine trace-EXACT rather than trace-approximate.
+Runs the PRODUCTION sampling path (same DistSampler, same set_all_seeds — which
+now seeds DGL explicitly — same node_split) with no training, and dumps every
+batch's remote node IDs + owners in the Layer-1 engine's native format:
+one optisched.trace.Trace CSR file per epoch per rank.
 
-From the trace, h(W,C,lambda), U(W), rebuild rows/bytes, per-owner miss
-composition, and cache overlap across any candidate schedule are computable
-offline for ANY (W, C, allocation) — no cluster time.
+Trace-EXACTNESS is checkable, not asserted: the collector folds every batch
+through trace_digest (global batch index + remote int64 ids, BEFORE storage
+dtype conversion), and any training run launched with --trace_digest and the
+same (dataset, partitioning, B, fanout, seed) writes the same rolling digest
+from its live BackgroundSampler. Equal digests == byte-identical streams.
+Verification protocol (run before trusting any trace):
+  1. collect the same trace twice -> digests must match (determinism);
+  2. run one real training with --trace_digest -> must match the collector.
 
-Launch exactly like a trainer (one rank per partition, via launch.py or the
-matrix driver's mechanism):
+Launch exactly like a trainer (one rank per partition):
   python3 collect_trace.py --graph_name reddit --ip_config ... --part_config \
       ... --batch_size 2000 --fan_out 10,25 --num_epochs 30 --seed 0 --out_dir ...
 
-Output per rank: {out_dir}/trace_part{pid}.pt
-  {"meta": {...}, "batches": [{"remote": int32[K], "owners": uint8[K],
-                               "n_inputs": int, "n_seeds": int}, ...]}
-(batches are in consumption order across all epochs; epoch boundaries at
-multiples of meta["bpe"]).
+Output per rank:
+  {out_dir}/trace_part{pid}_ep{e:03d}.npz   optisched.trace.Trace CSR
+  {out_dir}/trace_part{pid}_meta.json       config + digest + fingerprints
 """
 
 import argparse
 import hashlib
+import json
 import os
 import time
 
+import numpy as np
 import torch as th
 import dgl
 import dgl.distributed
 
 from helpers import set_all_seeds
 from sampler import DistSampler
+from trace_digest import new_digest, update_digest
+from optisched.trace import Trace
 
 
 def main(args):
@@ -46,6 +51,7 @@ def main(args):
         g.ndata["train_mask"], g.get_partition_book(), force_even=True)
     pb = g.get_partition_book()
     pid = g.rank()
+    P = pb.num_partitions()
 
     lp = g.local_partition
     if lp:
@@ -59,47 +65,65 @@ def main(args):
     lmask = th.zeros(g.num_nodes(), dtype=th.bool)
     if lid.numel() > 0:
         lmask[lid] = True
+    # partition fingerprint over the DATA, not just the config file: local
+    # inner-node id set identifies this partitioning assignment.
+    local_part_md5 = hashlib.md5(
+        lid.sort().values.numpy().astype("<i8").tobytes()).hexdigest()
 
     sampler = DistSampler(g, train_nid, args.fan_out, args.batch_size,
                           generator=gen)
     bpe = len(sampler)
+    os.makedirs(args.out_dir, exist_ok=True)
     print(f"Part {pid}: tracing {args.graph_name} bpe={bpe} "
           f"epochs={args.num_epochs} seed={args.seed}")
 
-    batches = []
+    digest = new_digest()
+    global_batch = 0
     t0 = time.time()
+    epoch_files = []
     for epoch in range(args.num_epochs):
-        for input_nodes, seeds, _blocks in sampler:
-            rmask = ~lmask[input_nodes]
-            remote = input_nodes[rmask]
+        batch_nodes, batch_owners = [], []
+        for input_nodes, _seeds, _blocks in sampler:
+            remote = input_nodes[~lmask[input_nodes]]
+            update_digest(digest, global_batch, remote)
+            global_batch += 1
             owners = pb.nid2partid(remote)
-            batches.append({
-                "remote": remote.to(th.int32),
-                "owners": owners.to(th.uint8),
-                "n_inputs": int(input_nodes.numel()),
-                "n_seeds": int(seeds.numel()),
-            })
-        print(f"Part {pid}: epoch {epoch} traced "
-              f"({len(batches)} batches, {time.time() - t0:.0f}s)")
+            batch_nodes.append(remote.numpy().astype(np.int64))
+            batch_owners.append(owners.numpy().astype(np.int32))
+        total = int(sum(len(x) for x in batch_nodes))
+        tr = Trace(
+            nodes=np.concatenate(batch_nodes) if total else
+            np.empty(0, np.int64),
+            owners=np.concatenate(batch_owners) if total else
+            np.empty(0, np.int32),
+            offsets=np.cumsum([0] + [len(x) for x in batch_nodes],
+                              dtype=np.int64),
+            num_partitions=P, local_rank=int(pid))
+        path = os.path.join(args.out_dir,
+                            f"trace_part{pid}_ep{epoch:03d}.npz")
+        tr.save(path)
+        epoch_files.append(os.path.basename(path))
+        print(f"Part {pid}: epoch {epoch} -> {path} "
+              f"({len(batch_nodes)} batches, {total} ids, "
+              f"{time.time() - t0:.0f}s)")
 
     with open(args.part_config, "rb") as f:
-        part_md5 = hashlib.md5(f.read()).hexdigest()
+        cfg_md5 = hashlib.md5(f.read()).hexdigest()
     meta = dict(
         dataset=args.graph_name, part_config=args.part_config,
-        part_config_md5=part_md5, num_nodes=int(g.num_nodes()),
-        P=int(pb.num_partitions()), pid=int(pid),
+        part_config_md5=cfg_md5, local_partition_md5=local_part_md5,
+        num_nodes=int(g.num_nodes()), P=int(P), pid=int(pid),
         feat_dim=int(g.ndata["features"].shape[1]),
         feat_dtype=str(g.ndata["features"].dtype),
         batch_size=args.batch_size, fan_out=args.fan_out,
         num_epochs=args.num_epochs, bpe=bpe, seed=args.seed,
-        n_train_local=int(train_nid.numel()), collected_t=time.time(),
+        n_train_local=int(train_nid.numel()),
+        n_batches=global_batch, digest=digest.hexdigest(),
+        epoch_files=epoch_files, collected_t=time.time(),
     )
-
-    os.makedirs(args.out_dir, exist_ok=True)
-    out = os.path.join(args.out_dir, f"trace_part{pid}.pt")
-    th.save({"meta": meta, "batches": batches}, out)
-    sz = os.path.getsize(out) / 1e6
-    print(f"Part {pid}: wrote {out} ({len(batches)} batches, {sz:.0f} MB)")
+    mpath = os.path.join(args.out_dir, f"trace_part{pid}_meta.json")
+    json.dump(meta, open(mpath, "w"), indent=2)
+    print(f"Part {pid}: digest={meta['digest']} -> {mpath}")
     th.distributed.barrier()
 
 

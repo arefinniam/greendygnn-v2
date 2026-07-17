@@ -1,0 +1,331 @@
+{
+ "generated_by": "parse_results.py v2",
+ "matrix_dir": "/home/cc/matrix_results/instr_overhead_20260715",
+ "n_configs": 2,
+ "table": [
+  {
+   "dataset": "ogbn-products",
+   "condition": "clean",
+   "method": "static_w16",
+   "n_seeds": 2,
+   "seeds": [
+    0,
+    1
+   ],
+   "metrics": {
+    "agg.bpe": {
+     "mean": 25.0,
+     "std": 0.0,
+     "n": 2
+    },
+    "agg.mean_accuracy": {
+     "mean": 0.86175,
+     "std": 0.00035355339059323483,
+     "n": 2
+    },
+    "agg.mean_cache_hit_pct": {
+     "mean": 39.05,
+     "std": 0.7778174593052033,
+     "n": 2
+    },
+    "agg.mean_epoch_time_s": {
+     "mean": 4.276,
+     "std": 0.0014142135623729393,
+     "n": 2
+    },
+    "agg.n_parts": {
+     "mean": 4.0,
+     "std": 0.0,
+     "n": 2
+    },
+    "agg.sys_cpu_j_per_epoch": {
+     "mean": 1788.0500000000002,
+     "std": 0.9192388155424797,
+     "n": 2
+    },
+    "agg.sys_cpu_j_per_epoch_mean": {
+     "mean": 1705.6,
+     "std": 8.626702730475913,
+     "n": 2
+    },
+    "agg.sys_gpu_j_per_epoch": {
+     "mean": 1069.65,
+     "std": 0.49497474683061543,
+     "n": 2
+    },
+    "agg.sys_gpu_j_per_epoch_mean": {
+     "mean": 1038.6,
+     "std": 2.1213203435596424,
+     "n": 2
+    },
+    "agg.sys_total_j_per_epoch": {
+     "mean": 2857.75,
+     "std": 0.49497474683045467,
+     "n": 2
+    },
+    "agg.sys_total_j_per_epoch_mean": {
+     "mean": 2744.2,
+     "std": 10.748023074035716,
+     "n": 2
+    },
+    "agg.throughput_samples_per_s": {
+     "mean": 46770.0,
+     "std": 19.79898987322333,
+     "n": 2
+    },
+    "agg.warmup": {
+     "mean": 5.0,
+     "std": 0.0,
+     "n": 2
+    },
+    "exposure.n_transitions": {
+     "mean": 0.0,
+     "std": 0.0,
+     "n": 2
+    },
+    "exposure.run_fraction": {
+     "mean": 0.0,
+     "std": 0.0,
+     "n": 2
+    },
+    "prof.best_accuracy": {
+     "mean": 0.8503225,
+     "std": 0.00030759144981612214,
+     "n": 2
+    },
+    "prof.cache_hit_pct_mean": {
+     "mean": 35.81893333333332,
+     "std": 0.7348253670090458,
+     "n": 2
+    },
+    "prof.epoch_time_s_stable_mean": {
+     "mean": 4.120229166666668,
+     "std": 0.005863093727337771,
+     "n": 2
+    },
+    "prof.final_accuracy": {
+     "mean": 0.849547,
+     "std": 0.0014043140674364356,
+     "n": 2
+    },
+    "prof.remote_bytes_total_allparts": {
+     "mean": 12676300860600.0,
+     "std": 350854222.58812845,
+     "n": 2
+    },
+    "prof.remote_rows_total_allparts": {
+     "mean": 31690752151.5,
+     "std": 877135.5564703211,
+     "n": 2
+    },
+    "summary.cpu_j_sum_allparts": {
+     "mean": 225574.58000000002,
+     "std": 345.9307794920836,
+     "n": 2
+    },
+    "summary.gpu_j_sum_allparts": {
+     "mean": 32261.15,
+     "std": 12.982480502585425,
+     "n": 2
+    },
+    "summary.total_j_sum_allparts": {
+     "mean": 257835.72499999998,
+     "std": 358.9061889268403,
+     "n": 2
+    }
+   },
+   "provenance": [
+    {
+     "run_dir": "/home/cc/matrix_results/instr_overhead_20260715/runs/ogbn-products__clean__static_w16__seed0",
+     "seed": 0,
+     "n_profiles": 4,
+     "aggregate": "/home/cc/matrix_results/instr_overhead_20260715/runs/ogbn-products__clean__static_w16__seed0/p1_aggregate.json",
+     "profiles": [
+      "/home/cc/matrix_results/instr_overhead_20260715/runs/ogbn-products__clean__static_w16__seed0/static_w16_part0_profile.json",
+      "/home/cc/matrix_results/instr_overhead_20260715/runs/ogbn-products__clean__static_w16__seed0/static_w16_part1_profile.json",
+      "/home/cc/matrix_results/instr_overhead_20260715/runs/ogbn-products__clean__static_w16__seed0/static_w16_part2_profile.json",
+      "/home/cc/matrix_results/instr_overhead_20260715/runs/ogbn-products__clean__static_w16__seed0/static_w16_part3_profile.json"
+     ],
+     "run_log": "/home/cc/matrix_results/instr_overhead_20260715/runs/ogbn-products__clean__static_w16__seed0/run.log",
+     "journal": "/home/cc/matrix_results/instr_overhead_20260715/runs/ogbn-products__clean__static_w16__seed0/cong_journal.jsonl"
+    },
+    {
+     "run_dir": "/home/cc/matrix_results/instr_overhead_20260715/runs/ogbn-products__clean__static_w16__seed1",
+     "seed": 1,
+     "n_profiles": 4,
+     "aggregate": "/home/cc/matrix_results/instr_overhead_20260715/runs/ogbn-products__clean__static_w16__seed1/p1_aggregate.json",
+     "profiles": [
+      "/home/cc/matrix_results/instr_overhead_20260715/runs/ogbn-products__clean__static_w16__seed1/static_w16_part0_profile.json",
+      "/home/cc/matrix_results/instr_overhead_20260715/runs/ogbn-products__clean__static_w16__seed1/static_w16_part1_profile.json",
+      "/home/cc/matrix_results/instr_overhead_20260715/runs/ogbn-products__clean__static_w16__seed1/static_w16_part2_profile.json",
+      "/home/cc/matrix_results/instr_overhead_20260715/runs/ogbn-products__clean__static_w16__seed1/static_w16_part3_profile.json"
+     ],
+     "run_log": "/home/cc/matrix_results/instr_overhead_20260715/runs/ogbn-products__clean__static_w16__seed1/run.log",
+     "journal": "/home/cc/matrix_results/instr_overhead_20260715/runs/ogbn-products__clean__static_w16__seed1/cong_journal.jsonl"
+    }
+   ]
+  },
+  {
+   "dataset": "reddit",
+   "condition": "clean",
+   "method": "static_w16",
+   "n_seeds": 2,
+   "seeds": [
+    0,
+    1
+   ],
+   "metrics": {
+    "agg.bpe": {
+     "mean": 20.0,
+     "std": 0.0,
+     "n": 2
+    },
+    "agg.mean_accuracy": {
+     "mean": 0.9160999999999999,
+     "std": 0.0004242640687119603,
+     "n": 2
+    },
+    "agg.mean_cache_hit_pct": {
+     "mean": 72.19999999999999,
+     "std": 1.5556349186104066,
+     "n": 2
+    },
+    "agg.mean_epoch_time_s": {
+     "mean": 2.363,
+     "std": 0.03252691193458137,
+     "n": 2
+    },
+    "agg.n_parts": {
+     "mean": 4.0,
+     "std": 0.0,
+     "n": 2
+    },
+    "agg.sys_cpu_j_per_epoch": {
+     "mean": 1009.25,
+     "std": 1.4849242404916856,
+     "n": 2
+    },
+    "agg.sys_cpu_j_per_epoch_mean": {
+     "mean": 978.1,
+     "std": 9.050966799187776,
+     "n": 2
+    },
+    "agg.sys_gpu_j_per_epoch": {
+     "mean": 616.8499999999999,
+     "std": 5.020458146424503,
+     "n": 2
+    },
+    "agg.sys_gpu_j_per_epoch_mean": {
+     "mean": 610.55,
+     "std": 5.303300858899107,
+     "n": 2
+    },
+    "agg.sys_total_j_per_epoch": {
+     "mean": 1626.05,
+     "std": 6.434671708797518,
+     "n": 2
+    },
+    "agg.sys_total_j_per_epoch_mean": {
+     "mean": 1588.6,
+     "std": 14.283556979968292,
+     "n": 2
+    },
+    "agg.throughput_samples_per_s": {
+     "mean": 67713.5,
+     "std": 927.0169901355638,
+     "n": 2
+    },
+    "agg.warmup": {
+     "mean": 5.0,
+     "std": 0.0,
+     "n": 2
+    },
+    "exposure.n_transitions": {
+     "mean": 0.0,
+     "std": 0.0,
+     "n": 2
+    },
+    "exposure.run_fraction": {
+     "mean": 0.0,
+     "std": 0.0,
+     "n": 2
+    },
+    "prof.best_accuracy": {
+     "mean": 0.9443465,
+     "std": 0.00015344217151749687,
+     "n": 2
+    },
+    "prof.cache_hit_pct_mean": {
+     "mean": 66.25600000000006,
+     "std": 1.281748892030819,
+     "n": 2
+    },
+    "prof.epoch_time_s_stable_mean": {
+     "mean": 2.3043958333333334,
+     "std": 0.015703663098850965,
+     "n": 2
+    },
+    "prof.final_accuracy": {
+     "mean": 0.9437504999999999,
+     "std": 0.0006894291116569257,
+     "n": 2
+    },
+    "prof.remote_bytes_total_allparts": {
+     "mean": 2473114288540.0,
+     "std": 18672583880.250862,
+     "n": 2
+    },
+    "prof.remote_rows_total_allparts": {
+     "mean": 1027040817.5,
+     "std": 7754395.2991075,
+     "n": 2
+    },
+    "summary.cpu_j_sum_allparts": {
+     "mean": 203710.36000000002,
+     "std": 113.80176536416461,
+     "n": 2
+    },
+    "summary.gpu_j_sum_allparts": {
+     "mean": 19299.135000000002,
+     "std": 160.15261487094227,
+     "n": 2
+    },
+    "summary.total_j_sum_allparts": {
+     "mean": 223009.47999999998,
+     "std": 273.9473091673013,
+     "n": 2
+    }
+   },
+   "provenance": [
+    {
+     "run_dir": "/home/cc/matrix_results/instr_overhead_20260715/runs/reddit__clean__static_w16__seed0",
+     "seed": 0,
+     "n_profiles": 4,
+     "aggregate": "/home/cc/matrix_results/instr_overhead_20260715/runs/reddit__clean__static_w16__seed0/p1_aggregate.json",
+     "profiles": [
+      "/home/cc/matrix_results/instr_overhead_20260715/runs/reddit__clean__static_w16__seed0/static_w16_part0_profile.json",
+      "/home/cc/matrix_results/instr_overhead_20260715/runs/reddit__clean__static_w16__seed0/static_w16_part1_profile.json",
+      "/home/cc/matrix_results/instr_overhead_20260715/runs/reddit__clean__static_w16__seed0/static_w16_part2_profile.json",
+      "/home/cc/matrix_results/instr_overhead_20260715/runs/reddit__clean__static_w16__seed0/static_w16_part3_profile.json"
+     ],
+     "run_log": "/home/cc/matrix_results/instr_overhead_20260715/runs/reddit__clean__static_w16__seed0/run.log",
+     "journal": "/home/cc/matrix_results/instr_overhead_20260715/runs/reddit__clean__static_w16__seed0/cong_journal.jsonl"
+    },
+    {
+     "run_dir": "/home/cc/matrix_results/instr_overhead_20260715/runs/reddit__clean__static_w16__seed1",
+     "seed": 1,
+     "n_profiles": 4,
+     "aggregate": "/home/cc/matrix_results/instr_overhead_20260715/runs/reddit__clean__static_w16__seed1/p1_aggregate.json",
+     "profiles": [
+      "/home/cc/matrix_results/instr_overhead_20260715/runs/reddit__clean__static_w16__seed1/static_w16_part0_profile.json",
+      "/home/cc/matrix_results/instr_overhead_20260715/runs/reddit__clean__static_w16__seed1/static_w16_part1_profile.json",
+      "/home/cc/matrix_results/instr_overhead_20260715/runs/reddit__clean__static_w16__seed1/static_w16_part2_profile.json",
+      "/home/cc/matrix_results/instr_overhead_20260715/runs/reddit__clean__static_w16__seed1/static_w16_part3_profile.json"
+     ],
+     "run_log": "/home/cc/matrix_results/instr_overhead_20260715/runs/reddit__clean__static_w16__seed1/run.log",
+     "journal": "/home/cc/matrix_results/instr_overhead_20260715/runs/reddit__clean__static_w16__seed1/cong_journal.jsonl"
+    }
+   ]
+  }
+ ]
+}

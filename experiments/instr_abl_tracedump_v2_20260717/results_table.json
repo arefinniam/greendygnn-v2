@@ -1,0 +1,301 @@
+{
+ "generated_by": "parse_results.py v2",
+ "matrix_dir": "/home/cc/matrix_results/instr_abl_tracedump_v2_20260717",
+ "n_configs": 2,
+ "table": [
+  {
+   "dataset": "ogbn-products",
+   "condition": "clean",
+   "method": "static_w16",
+   "n_seeds": 1,
+   "seeds": [
+    0
+   ],
+   "metrics": {
+    "agg.bpe": {
+     "mean": 25.0,
+     "std": 0.0,
+     "n": 1
+    },
+    "agg.mean_accuracy": {
+     "mean": 0.8604,
+     "std": 0.0,
+     "n": 1
+    },
+    "agg.mean_cache_hit_pct": {
+     "mean": 45.6,
+     "std": 0.0,
+     "n": 1
+    },
+    "agg.mean_epoch_time_s": {
+     "mean": 2.83,
+     "std": 0.0,
+     "n": 1
+    },
+    "agg.n_parts": {
+     "mean": 4.0,
+     "std": 0.0,
+     "n": 1
+    },
+    "agg.sys_cpu_j_per_epoch": {
+     "mean": 1206.2,
+     "std": 0.0,
+     "n": 1
+    },
+    "agg.sys_cpu_j_per_epoch_mean": {
+     "mean": 1439.3,
+     "std": 0.0,
+     "n": 1
+    },
+    "agg.sys_gpu_j_per_epoch": {
+     "mean": 721.2,
+     "std": 0.0,
+     "n": 1
+    },
+    "agg.sys_gpu_j_per_epoch_mean": {
+     "mean": 891.3,
+     "std": 0.0,
+     "n": 1
+    },
+    "agg.sys_total_j_per_epoch": {
+     "mean": 1927.4,
+     "std": 0.0,
+     "n": 1
+    },
+    "agg.sys_total_j_per_epoch_mean": {
+     "mean": 2330.5,
+     "std": 0.0,
+     "n": 1
+    },
+    "agg.throughput_samples_per_s": {
+     "mean": 70671.0,
+     "std": 0.0,
+     "n": 1
+    },
+    "agg.warmup": {
+     "mean": 5.0,
+     "std": 0.0,
+     "n": 1
+    },
+    "exposure.n_transitions": {
+     "mean": 0.0,
+     "std": 0.0,
+     "n": 1
+    },
+    "exposure.run_fraction": {
+     "mean": 0.0,
+     "std": 0.0,
+     "n": 1
+    },
+    "prof.best_accuracy": {
+     "mean": 0.84975,
+     "std": 0.0,
+     "n": 1
+    },
+    "prof.cache_hit_pct_mean": {
+     "mean": 42.02800000000002,
+     "std": 0.0,
+     "n": 1
+    },
+    "prof.epoch_time_s_stable_mean": {
+     "mean": 3.358750000000001,
+     "std": 0.0,
+     "n": 1
+    },
+    "prof.final_accuracy": {
+     "mean": 0.848998,
+     "std": 0.0,
+     "n": 1
+    },
+    "prof.remote_bytes_total_allparts": {
+     "mean": 12626224788800.0,
+     "std": 0.0,
+     "n": 1
+    },
+    "prof.remote_rows_total_allparts": {
+     "mean": 31565561972.0,
+     "std": 0.0,
+     "n": 1
+    },
+    "summary.cpu_j_sum_allparts": {
+     "mean": 179077.68,
+     "std": 0.0,
+     "n": 1
+    },
+    "summary.gpu_j_sum_allparts": {
+     "mean": 24351.93,
+     "std": 0.0,
+     "n": 1
+    },
+    "summary.total_j_sum_allparts": {
+     "mean": 203429.6,
+     "std": 0.0,
+     "n": 1
+    }
+   },
+   "provenance": [
+    {
+     "run_dir": "/home/cc/matrix_results/instr_abl_tracedump_v2_20260717/runs/ogbn-products__clean__static_w16__seed0",
+     "seed": 0,
+     "n_profiles": 4,
+     "aggregate": "/home/cc/matrix_results/instr_abl_tracedump_v2_20260717/runs/ogbn-products__clean__static_w16__seed0/p1_aggregate.json",
+     "profiles": [
+      "/home/cc/matrix_results/instr_abl_tracedump_v2_20260717/runs/ogbn-products__clean__static_w16__seed0/static_w16_part0_profile.json",
+      "/home/cc/matrix_results/instr_abl_tracedump_v2_20260717/runs/ogbn-products__clean__static_w16__seed0/static_w16_part1_profile.json",
+      "/home/cc/matrix_results/instr_abl_tracedump_v2_20260717/runs/ogbn-products__clean__static_w16__seed0/static_w16_part2_profile.json",
+      "/home/cc/matrix_results/instr_abl_tracedump_v2_20260717/runs/ogbn-products__clean__static_w16__seed0/static_w16_part3_profile.json"
+     ],
+     "run_log": "/home/cc/matrix_results/instr_abl_tracedump_v2_20260717/runs/ogbn-products__clean__static_w16__seed0/run.log",
+     "journal": "/home/cc/matrix_results/instr_abl_tracedump_v2_20260717/runs/ogbn-products__clean__static_w16__seed0/cong_journal.jsonl"
+    }
+   ]
+  },
+  {
+   "dataset": "reddit",
+   "condition": "clean",
+   "method": "static_w16",
+   "n_seeds": 1,
+   "seeds": [
+    0
+   ],
+   "metrics": {
+    "agg.bpe": {
+     "mean": 20.0,
+     "std": 0.0,
+     "n": 1
+    },
+    "agg.mean_accuracy": {
+     "mean": 0.9164,
+     "std": 0.0,
+     "n": 1
+    },
+    "agg.mean_cache_hit_pct": {
+     "mean": 84.1,
+     "std": 0.0,
+     "n": 1
+    },
+    "agg.mean_epoch_time_s": {
+     "mean": 1.493,
+     "std": 0.0,
+     "n": 1
+    },
+    "agg.n_parts": {
+     "mean": 4.0,
+     "std": 0.0,
+     "n": 1
+    },
+    "agg.sys_cpu_j_per_epoch": {
+     "mean": 660.9,
+     "std": 0.0,
+     "n": 1
+    },
+    "agg.sys_cpu_j_per_epoch_mean": {
+     "mean": 788.3,
+     "std": 0.0,
+     "n": 1
+    },
+    "agg.sys_gpu_j_per_epoch": {
+     "mean": 416.0,
+     "std": 0.0,
+     "n": 1
+    },
+    "agg.sys_gpu_j_per_epoch_mean": {
+     "mean": 498.1,
+     "std": 0.0,
+     "n": 1
+    },
+    "agg.sys_total_j_per_epoch": {
+     "mean": 1076.9,
+     "std": 0.0,
+     "n": 1
+    },
+    "agg.sys_total_j_per_epoch_mean": {
+     "mean": 1286.3,
+     "std": 0.0,
+     "n": 1
+    },
+    "agg.throughput_samples_per_s": {
+     "mean": 107167.0,
+     "std": 0.0,
+     "n": 1
+    },
+    "agg.warmup": {
+     "mean": 5.0,
+     "std": 0.0,
+     "n": 1
+    },
+    "exposure.n_transitions": {
+     "mean": 0.0,
+     "std": 0.0,
+     "n": 1
+    },
+    "exposure.run_fraction": {
+     "mean": 0.0,
+     "std": 0.0,
+     "n": 1
+    },
+    "prof.best_accuracy": {
+     "mean": 0.943707,
+     "std": 0.0,
+     "n": 1
+    },
+    "prof.cache_hit_pct_mean": {
+     "mean": 77.39783333333352,
+     "std": 0.0,
+     "n": 1
+    },
+    "prof.epoch_time_s_stable_mean": {
+     "mean": 1.7368333333333332,
+     "std": 0.0,
+     "n": 1
+    },
+    "prof.final_accuracy": {
+     "mean": 0.943707,
+     "std": 0.0,
+     "n": 1
+    },
+    "prof.remote_bytes_total_allparts": {
+     "mean": 2401882331520.0,
+     "std": 0.0,
+     "n": 1
+    },
+    "prof.remote_rows_total_allparts": {
+     "mean": 997459440.0,
+     "std": 0.0,
+     "n": 1
+    },
+    "summary.cpu_j_sum_allparts": {
+     "mean": 174106.16999999998,
+     "std": 0.0,
+     "n": 1
+    },
+    "summary.gpu_j_sum_allparts": {
+     "mean": 18373.010000000002,
+     "std": 0.0,
+     "n": 1
+    },
+    "summary.total_j_sum_allparts": {
+     "mean": 192479.18,
+     "std": 0.0,
+     "n": 1
+    }
+   },
+   "provenance": [
+    {
+     "run_dir": "/home/cc/matrix_results/instr_abl_tracedump_v2_20260717/runs/reddit__clean__static_w16__seed0",
+     "seed": 0,
+     "n_profiles": 4,
+     "aggregate": "/home/cc/matrix_results/instr_abl_tracedump_v2_20260717/runs/reddit__clean__static_w16__seed0/p1_aggregate.json",
+     "profiles": [
+      "/home/cc/matrix_results/instr_abl_tracedump_v2_20260717/runs/reddit__clean__static_w16__seed0/static_w16_part0_profile.json",
+      "/home/cc/matrix_results/instr_abl_tracedump_v2_20260717/runs/reddit__clean__static_w16__seed0/static_w16_part1_profile.json",
+      "/home/cc/matrix_results/instr_abl_tracedump_v2_20260717/runs/reddit__clean__static_w16__seed0/static_w16_part2_profile.json",
+      "/home/cc/matrix_results/instr_abl_tracedump_v2_20260717/runs/reddit__clean__static_w16__seed0/static_w16_part3_profile.json"
+     ],
+     "run_log": "/home/cc/matrix_results/instr_abl_tracedump_v2_20260717/runs/reddit__clean__static_w16__seed0/run.log",
+     "journal": "/home/cc/matrix_results/instr_abl_tracedump_v2_20260717/runs/reddit__clean__static_w16__seed0/cong_journal.jsonl"
+    }
+   ]
+  }
+ ]
+}

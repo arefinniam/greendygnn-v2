@@ -71,7 +71,7 @@ class SharedBuffer:
 
 class BackgroundSampler(threading.Thread):
     """Producer thread that runs the DGL sampler and fills the SharedBuffer"""
-    def __init__(self, sampler, buffer, g, local_mask, start_batch_id=0, dist_lock=None, initial_iter=None, num_epochs=1):
+    def __init__(self, sampler, buffer, g, local_mask, start_batch_id=0, dist_lock=None, initial_iter=None, num_epochs=1, digest_path=None, trace_dump_dir=None):
         super().__init__(daemon=True)
         self.sampler = sampler
         self.buffer = buffer
@@ -83,6 +83,31 @@ class BackgroundSampler(threading.Thread):
         self.num_epochs = num_epochs
         self.running = True
         self.error = None
+        # Optional rolling digest of the sampled remote-access stream, for
+        # live-vs-collected trace equivalence checks (trace_digest.py).
+        self.digest_path = digest_path
+        self._digest = None
+        if digest_path:
+            from trace_digest import new_digest
+            self._digest = new_digest()
+        # Optional live trace capture (Layer-1 exactness): distributed neighbor
+        # sampling is nondeterministic across runs (server-side RNG draw order
+        # depends on request interleaving), so a separately collected trace can
+        # never be exact — the trace of a run must be dumped BY that run.
+        # Epoch attribution needs a clean epoch grid, so dumping is disabled
+        # when initial_iter splits epoch 0.
+        self.trace_dump_dir = trace_dump_dir
+        if trace_dump_dir and initial_iter is not None:
+            print("BackgroundSampler: trace_dump disabled (initial_iter in use)")
+            self.trace_dump_dir = None
+        if self.trace_dump_dir:
+            import os
+            os.makedirs(self.trace_dump_dir, exist_ok=True)
+        self._dump_pb = None
+        self._dump_epoch = 0
+        self._dump_files = []
+        self._cur_epoch_nodes = []   # this epoch's per-batch remote-id arrays
+        self._epochs_nodes = []      # sealed per-epoch lists, written at the end
 
     def run(self):
         try:
@@ -95,6 +120,7 @@ class BackgroundSampler(threading.Thread):
                 if not self.running: break
                 iterator = iter(self.sampler)
                 self._consume_iterator(iterator)
+                self._seal_trace_epoch()      # cheap: just move the list
 
         except Exception as e:
             self.error = e
@@ -102,7 +128,73 @@ class BackgroundSampler(threading.Thread):
             import traceback
             traceback.print_exc()
         finally:
+            if self.trace_dump_dir is not None:
+                try:
+                    if self._cur_epoch_nodes:   # partial epoch on early stop
+                        self._seal_trace_epoch()
+                    # All owner-lookup RPCs + npz writes happen HERE, after the
+                    # timed epoch loop, so they never inflate step/energy
+                    # metrics (measured 2026-07-17: doing them per-epoch inside
+                    # the loop cost ~50% training wall time).
+                    for ep_nodes in self._epochs_nodes:
+                        self._write_trace_epoch(ep_nodes)
+                    self._write_trace_meta()
+                except Exception as e:
+                    print(f"BackgroundSampler trace dump finalize failed: {e}")
+            if self._digest is not None:
+                try:
+                    from trace_digest import write_digest
+                    write_digest(self.digest_path, self._digest,
+                                 self.current_batch_id)
+                except Exception as e:
+                    print(f"BackgroundSampler digest write failed: {e}")
             self.buffer.mark_finished()
+
+    def _seal_trace_epoch(self):
+        """Cheap: hand this epoch's batch arrays to the write list, reset."""
+        if self.trace_dump_dir is None:
+            return
+        self._epochs_nodes.append(self._cur_epoch_nodes)
+        self._cur_epoch_nodes = []
+
+    def _write_trace_epoch(self, bn):
+        """Heavy (concat + owner RPC + npz). Called AFTER the timed loop."""
+        import os
+        import numpy as np
+        from optisched.trace import Trace
+        if self._dump_pb is None:
+            self._dump_pb = self.g.get_partition_book()
+        pb = self._dump_pb
+        pid, P = int(self.g.rank()), int(pb.num_partitions())
+        total = int(sum(len(x) for x in bn))
+        nodes = np.concatenate(bn) if total else np.empty(0, np.int64)
+        if total:
+            import torch as _th
+            owners = pb.nid2partid(_th.from_numpy(nodes)).numpy().astype("int32")
+        else:
+            owners = np.empty(0, np.int32)
+        tr = Trace(
+            nodes=nodes, owners=owners,
+            offsets=np.cumsum([0] + [len(x) for x in bn], dtype=np.int64),
+            num_partitions=P, local_rank=pid)
+        path = os.path.join(self.trace_dump_dir,
+                            f"trace_part{pid}_ep{self._dump_epoch:03d}.npz")
+        tr.save(path)
+        self._dump_files.append(os.path.basename(path))
+        self._dump_epoch += 1
+
+    def _write_trace_meta(self):
+        import json
+        import os
+        pid = int(self.g.rank())
+        meta = {"pid": pid, "source": "live",
+                "epochs_dumped": self._dump_epoch,
+                "n_batches": int(self.current_batch_id),
+                "digest": self._digest.hexdigest() if self._digest else None,
+                "files": self._dump_files}
+        with open(os.path.join(self.trace_dump_dir,
+                               f"trace_part{pid}_meta.json"), "w") as f:
+            json.dump(meta, f, indent=2)
 
     def _consume_iterator(self, iterator):
         while self.running:
@@ -120,6 +212,17 @@ class BackgroundSampler(threading.Thread):
 
             # Process batch
             remote_mask = ~self.local_mask[input_nodes]
+            if self._digest is not None:
+                from trace_digest import update_digest
+                update_digest(self._digest, self.current_batch_id,
+                              input_nodes[remote_mask])
+            if self.trace_dump_dir is not None:
+                # Hot path: capture remote ids only (cheap CPU copy). All
+                # concat/owner-lookup/npz work is deferred to after the timed
+                # loop (see run()); doing any of it per-epoch inside the loop
+                # cost ~50% of training wall time (measured 2026-07-17).
+                self._cur_epoch_nodes.append(
+                    input_nodes[remote_mask].numpy().astype("int64"))
 
             # Access labels safely
             if self.dist_lock:
@@ -608,6 +711,29 @@ class BatchPrefetcher:
         _, top_indices = th.topk(node_counts, k)
         return unique_nodes[top_indices], None
 
+    def _timed_bulk_pull(self, nodes_cpu):
+        """Builder bulk feature pull with the lock/RPC timing split.
+
+        Returns (cpu_feats, lock_s, rpc_s). rpc_s is the production-path RPC
+        service time (combined across owners — splitting per owner would
+        serialize the pull and change production behavior; per-owner surfaces
+        come from microbench_fetch.py instead). The host->device copy is done
+        and timed by the CALLER, outside the dist_lock — the lock is no
+        longer held during H2D."""
+        t0 = time.perf_counter()
+        if self.dist_lock:
+            with self.dist_lock:
+                lock_s = time.perf_counter() - t0
+                t1 = time.perf_counter()
+                feats = self.g.ndata["features"][nodes_cpu]
+                rpc_s = time.perf_counter() - t1
+        else:
+            lock_s = 0.0
+            t1 = time.perf_counter()
+            feats = self.g.ndata["features"][nodes_cpu]
+            rpc_s = time.perf_counter() - t1
+        return feats, lock_s, rpc_s
+
     def _build_cache_for_window(self, start_batch, is_sync=False):
         """Plan + fetch the cache contents for the window at start_batch.
 
@@ -687,6 +813,7 @@ class BatchPrefetcher:
 
         reused_count = 0
         new_count = 0
+        t_lock_s = t_rpc_s = t_h2d_s = 0.0
         pending_features = th.empty((0, self.cache.feat_dim), device=self.device)
         hot_nodes_cpu = th.tensor([], dtype=th.long)
         new_nodes_cpu = th.tensor([], dtype=th.long)
@@ -725,27 +852,24 @@ class BatchPrefetcher:
                     new_nodes_cpu = hot_nodes_cpu[~overlap_mask_cpu]
                     if len(new_nodes_cpu) > 0:
                         new_positions_new = th.nonzero(~overlap_mask_dev, as_tuple=True)[0]
-                        if self.dist_lock:
-                            with self.dist_lock:
-                                pending_features[new_positions_new] = self.g.ndata["features"][new_nodes_cpu].to(self.device)
-                        else:
-                            pending_features[new_positions_new] = self.g.ndata["features"][new_nodes_cpu].to(self.device)
+                        pulled, t_lock_s, t_rpc_s = self._timed_bulk_pull(new_nodes_cpu)
+                        th2d0 = time.perf_counter()
+                        pending_features[new_positions_new] = pulled.to(self.device)
+                        t_h2d_s = time.perf_counter() - th2d0
                 else:
                     new_nodes_cpu = hot_nodes_cpu
-                    if self.dist_lock:
-                        with self.dist_lock:
-                            pending_features = self.g.ndata["features"][hot_nodes_cpu].to(self.device)
-                    else:
-                        pending_features = self.g.ndata["features"][hot_nodes_cpu].to(self.device)
+                    pulled, t_lock_s, t_rpc_s = self._timed_bulk_pull(hot_nodes_cpu)
+                    th2d0 = time.perf_counter()
+                    pending_features = pulled.to(self.device)
+                    t_h2d_s = time.perf_counter() - th2d0
             else:
                 reused_count = 0
                 new_count = selected_count
                 new_nodes_cpu = hot_nodes_cpu
-                if self.dist_lock:
-                    with self.dist_lock:
-                        pending_features = self.g.ndata["features"][hot_nodes_cpu].to(self.device)
-                else:
-                    pending_features = self.g.ndata["features"][hot_nodes_cpu].to(self.device)
+                pulled, t_lock_s, t_rpc_s = self._timed_bulk_pull(hot_nodes_cpu)
+                th2d0 = time.perf_counter()
+                pending_features = pulled.to(self.device)
+                t_h2d_s = time.perf_counter() - th2d0
 
         t_fetch_done = time.time()
 
@@ -766,6 +890,13 @@ class BatchPrefetcher:
             "sync": bool(is_sync),
             "t_plan_s": round(t_plan_done - t0, 6),
             "t_fetch_s": round(t_fetch_done - t_plan_done, 6),
+            # Blocker-1 split (RESEARCH_PLAN_v2): lock wait / RPC service /
+            # host->device copy, separated so the transition model g(...) is
+            # not confounded by lock contention. t_fetch_s stays the total
+            # assembly phase for back-compat.
+            "t_lock_s": round(t_lock_s, 6),
+            "t_rpc_s": round(t_rpc_s, 6),
+            "t_h2d_s": round(t_h2d_s, 6),
             "unique_remote_nodes": int(unique_remote_nodes),
             "total_remote_accesses": int(total_accesses),
             "rows_reused": int(reused_count),

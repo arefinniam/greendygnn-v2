@@ -14,7 +14,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from scripted_controller import ScriptedWController, W_LADDER
 from flight_recorder import FlightRecorder
 from cache import FeatureCache
-from test_pipeline import MockGraph, MockPB
+from test_pipeline import MockGraph, MockPB, FakeBlock
 
 
 # --------------------------- scripted controller -------------------------- #
@@ -135,3 +135,145 @@ def test_lock_wait_actually_separated_from_rtt():
     (_t, _pid, _rows, _b, rtt, lock_s) = cache.snapshot_fetch_events()[0]
     assert lock_s >= HOLD * 0.5             # waited on the held lock
     assert rtt < HOLD * 0.5                 # wire time did NOT absorb the wait
+
+
+# ------------------- blockers round (2026-07-13 review) ------------------- #
+
+def test_trace_digest_equivalence_and_sensitivity():
+    from trace_digest import new_digest, update_digest
+    a, b = new_digest(), new_digest()
+    t1, t2 = th.tensor([5, 9, 13]), th.tensor([7, 2])
+    for h in (a, b):
+        update_digest(h, 0, t1)
+        update_digest(h, 1, t2)
+    assert a.hexdigest() == b.hexdigest()          # same stream, same digest
+    c = new_digest()
+    update_digest(c, 0, t1)
+    update_digest(c, 1, th.tensor([2, 7]))         # order matters
+    assert c.hexdigest() != a.hexdigest()
+    d = new_digest()
+    update_digest(d, 1, t1)                        # batch index matters
+    update_digest(d, 0, t2)
+    assert d.hexdigest() != a.hexdigest()
+
+
+def test_background_sampler_writes_digest(tmp_path):
+    from prefetcher import BackgroundSampler, SharedBuffer
+    from trace_digest import new_digest, update_digest
+
+    class TinySampler:
+        def __init__(self, batches):
+            self.batches = batches
+
+        def __iter__(self):
+            return iter(self.batches)
+
+    g = MockGraph(num_nodes=40, feat_dim=3, rank=0, pb=MockPB(4, 0))
+    lmask = th.zeros(40, dtype=th.bool)
+    lmask[th.arange(0, 40, 4)] = True              # owner-0 nodes local
+    batches = [(th.tensor([1, 4, 6]), th.tensor([1]), [FakeBlock()]),
+               (th.tensor([2, 8, 11]), th.tensor([2]), [FakeBlock()])]
+    buf = SharedBuffer(capacity=10)
+    dpath = str(tmp_path / "digest.json")
+    bs = BackgroundSampler(TinySampler(batches), buf, g, lmask,
+                           num_epochs=1, digest_path=dpath)
+    bs.start(); bs.join(timeout=10)
+
+    rec = json.load(open(dpath))
+    ref = new_digest()
+    update_digest(ref, 0, th.tensor([1, 6]))       # 4 is local
+    update_digest(ref, 1, th.tensor([2, 11]))      # 8 is local
+    assert rec["digest"] == ref.hexdigest() and rec["n_batches"] == 2
+
+
+def test_background_sampler_trace_dump_matches_digest(tmp_path):
+    """Live trace dump must be a byte-exact record of the digest stream.
+
+    Distributed sampling is nondeterministic across runs (server-side RNG
+    draw order depends on request interleaving — proven by the 2026-07-15
+    smoke campaign), so traces are dumped BY the run itself and validated by
+    recomputing the rolling digest from the dumped npz files.
+    """
+    from prefetcher import BackgroundSampler, SharedBuffer
+    from trace_digest import digest_from_traces
+    import glob
+
+    class TinySampler:
+        def __init__(self, batches):
+            self.batches = batches
+
+        def __iter__(self):
+            return iter(self.batches)
+
+    g = MockGraph(num_nodes=40, feat_dim=3, rank=0, pb=MockPB(4, 0))
+    lmask = th.zeros(40, dtype=th.bool)
+    lmask[th.arange(0, 40, 4)] = True              # owner-0 nodes local
+    batches = [(th.tensor([1, 4, 6]), th.tensor([1]), [FakeBlock()]),
+               (th.tensor([2, 8, 11]), th.tensor([2]), [FakeBlock()])]
+    buf = SharedBuffer(capacity=10)
+    dpath = str(tmp_path / "digest.json")
+    ddir = str(tmp_path / "trace_dump")
+    bs = BackgroundSampler(TinySampler(batches), buf, g, lmask,
+                           num_epochs=2, digest_path=dpath,
+                           trace_dump_dir=ddir)
+    bs.start(); bs.join(timeout=10)
+
+    rec = json.load(open(dpath))
+    npz = sorted(glob.glob(os.path.join(ddir, "trace_part0_ep*.npz")))
+    assert len(npz) == 2                           # one Trace per epoch
+    h, nb = digest_from_traces(npz)
+    assert h.hexdigest() == rec["digest"] and nb == rec["n_batches"] == 4
+    meta = json.load(open(os.path.join(ddir, "trace_part0_meta.json")))
+    assert meta["digest"] == rec["digest"]
+    assert meta["epochs_dumped"] == 2 and len(meta["files"]) == 2
+    # owners recorded via the partition book (owner = id % P in the mock)
+    from optisched.trace import Trace
+    tr = Trace.load(npz[0])
+    nodes, owners = tr.batch(0)
+    assert list(nodes) == [1, 6] and list(owners) == [1, 2]
+
+
+def test_rebuild_log_has_lock_rpc_h2d_split():
+    from prefetcher import BatchPrefetcher
+    from test_pipeline import _run_pipeline
+    pf, _batches, _served = _run_pipeline(BatchPrefetcher)
+    rebuilds = pf.drain_rebuild_log()
+    assert rebuilds
+    for e in rebuilds:
+        for k in ("t_lock_s", "t_rpc_s", "t_h2d_s"):
+            assert k in e and e[k] >= 0.0
+        # split components can never exceed the total assembly phase
+        assert e["t_lock_s"] + e["t_rpc_s"] + e["t_h2d_s"] \
+            <= e["t_fetch_s"] + 0.05
+
+
+def test_scripted_controller_through_real_pipeline():
+    from prefetcher import BatchPrefetcher
+    from test_pipeline import _run_pipeline
+    c = ScriptedWController("4@0,8@8")
+    pf, _b, served = _run_pipeline(BatchPrefetcher, num_batches=24,
+                                   window=4, controller=c, rl_enabled=True)
+    assert len(served) == 24
+    dec = pf.drain_decision_log()
+    assert dec and all(e["provenance"] == "scripted" for e in dec)
+    ws = {e["W"] for e in dec}
+    assert 8 in ws                                  # the switch was applied
+
+
+def test_flight_recorder_node_source_arbitration(tmp_path):
+    a = FlightRecorder(str(tmp_path / "a.jsonl"), interval_s=0.2, iface="lo")
+    b = FlightRecorder(str(tmp_path / "b.jsonl"), interval_s=0.2, iface="lo")
+    try:
+        assert a.node_sources is True
+        assert b.node_sources is False              # second rank: GPU only
+        b.start(); time.sleep(0.3); b.stop()
+        lines = [json.loads(l) for l in open(str(tmp_path / "b.jsonl"))]
+        assert all("rx" not in s and "cpu" not in s and "rapl" not in s
+                   for s in lines[1:])
+    finally:
+        a.stop(); b.stop()
+    c = FlightRecorder(str(tmp_path / "c.jsonl"), interval_s=0.2, iface="lo")
+    try:
+        assert c.node_sources is True               # lock released by a.stop()
+    finally:
+        c.stop()

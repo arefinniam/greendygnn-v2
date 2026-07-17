@@ -18,6 +18,21 @@ def set_all_seeds(seed):
     th.manual_seed(seed)
     if th.cuda.is_available():
         th.cuda.manual_seed_all(seed)
+    # Seed DGL explicitly (trace-equivalence blocker 2026-07-13): without it
+    # the neighbor sampler's RNG is only indirectly covered and trace
+    # collection vs live training identity cannot be guaranteed. Lazy +
+    # guarded: unit tests run dgl-free.
+    try:
+        import dgl
+        try:
+            dgl.seed(seed)
+        except AttributeError:
+            dgl.random.seed(seed)
+    except Exception:
+        # dgl absent OR its native libs unloadable (e.g. LD_LIBRARY_PATH not
+        # set — raises OSError, not ImportError). Trainers always import dgl
+        # first, so when sampling actually happens this seed call succeeds.
+        pass
     g = th.Generator()
     g.manual_seed(seed)
     return g

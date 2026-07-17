@@ -1,0 +1,11 @@
+{
+  "pid": 0,
+  "source": "live",
+  "epochs_dumped": 2,
+  "n_batches": 40,
+  "digest": "ac532cfc6dee773a8341d5619953ae9e",
+  "files": [
+    "trace_part0_ep000.npz",
+    "trace_part0_ep001.npz"
+  ]
+}

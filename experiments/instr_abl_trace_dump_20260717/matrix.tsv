@@ -1,0 +1,3 @@
+dataset	condition	method	seed	status	duration_s	run_dir
+reddit	clean	static_w16	0	OK	90	/home/cc/matrix_results/instr_abl_trace_dump_20260717/runs/reddit__clean__static_w16__seed0
+ogbn-products	clean	static_w16	0	OK	145	/home/cc/matrix_results/instr_abl_trace_dump_20260717/runs/ogbn-products__clean__static_w16__seed0

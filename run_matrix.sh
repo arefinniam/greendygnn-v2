@@ -145,9 +145,12 @@ rapl_barrier() {
 build_train_cmd() {  # build_train_cmd <method> <dataset> <seed> <run_dir>
     local method="$1" dataset="$2" seed="$3" rd="$4"
     local pc="${PART_CONFIGS[$dataset]}" nc="${NCLASSES[$dataset]}"
+    # EXTRA_TRAIN_FLAGS env: appended to every method's command; used for the
+    # instrumentation-overhead cell (static_w16 + full instrumentation vs the
+    # uninstrumented wsweep baseline).
     local common="--graph_name $dataset --ip_config $IP_CONFIG --part_config $pc \
 --num_epochs $EPOCHS --batch_size $BATCH --out_dir $rd --seed $seed \
---n_classes $nc $TRAIN_COMMON"
+--n_classes $nc $TRAIN_COMMON ${EXTRA_TRAIN_FLAGS:-}"
     local ckpt_flag=""
     [[ -f "$GDY_CKPT" ]] && ckpt_flag="--checkpoint $GDY_CKPT"
     case "$method" in
@@ -156,6 +159,11 @@ build_train_cmd() {  # build_train_cmd <method> <dataset> <seed> <run_dir>
         static_w*)        local wn="${method#static_w}"
                           [[ "$wn" =~ ^[0-9]+$ ]] || { echo "ERROR: bad static_w method '$method'" >&2; return 1; }
                           echo "python3 $DIR/train_rapidgnn.py $common --window_size $wn --cache_size $CACHE_SIZE" ;;
+        scripted_r*)      # transition-cost campaign: seeded random W schedule,
+                          # flight recorder + sampler digest always on.
+                          local ssd="${method#scripted_r}"
+                          [[ "$ssd" =~ ^[0-9]+$ ]] || { echo "ERROR: bad scripted method '$method'" >&2; return 1; }
+                          echo "python3 $DIR/train_greendygnn.py $common --window_size 16 --cache_size $CACHE_SIZE --w_script random:${ssd}:${DWELL_MIN:-32}:${DWELL_MAX:-96} --flight_recorder --trace_digest --trace_dump" ;;
         greendygnn_v2)    echo "python3 $DIR/train_greendygnn.py $common --window_size 16 --cache_size $CACHE_SIZE $ckpt_flag" ;;
         v2_no_rl)         echo "python3 $DIR/train_greendygnn.py $common --window_size 16 --cache_size $CACHE_SIZE $ckpt_flag --no_rl" ;;
         v2_uniform_alloc) echo "python3 $DIR/train_greendygnn.py $common --window_size 16 --cache_size $CACHE_SIZE $ckpt_flag --uniform_alloc" ;;
@@ -389,6 +397,25 @@ EOF
     else
         [[ "$status" == "OK" ]] && status="PROFILES_MISSING"
         log "  ERROR: <4 part profiles collected — run marked $status"
+    fi
+
+    # scripted transition runs must PROVE the script drove the decisions —
+    # a silent fallback to the ordinary controller would poison the g(...) fit.
+    if [[ "$method" == scripted_r* && "$status" == OK* ]]; then
+        if ! python3 - "$rd" <<'PYEOF'
+import glob, json, sys
+p = sorted(glob.glob(sys.argv[1] + "/*part0_profile.json"))
+d = json.load(open(p[0])) if p else {}
+dec = d.get("decisions", [])
+scripted = [x for x in dec if x.get("provenance") == "scripted"]
+ok = bool(scripted) and not any(
+    x.get("provenance") in ("dqn", "fallback-heuristic") for x in dec)
+sys.exit(0 if ok else 1)
+PYEOF
+        then
+            status="FAIL(not-scripted)"
+            log "  FAIL: decision log lacks scripted provenance (silent fallback?)"
+        fi
     fi
 
     dur=$((t_end - t_launch))

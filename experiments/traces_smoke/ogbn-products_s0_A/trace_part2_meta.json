@@ -1,0 +1,24 @@
+{
+  "dataset": "ogbn-products",
+  "part_config": "/home/cc/distgnn/data/ogbn-products/ogbn-products.json",
+  "part_config_md5": "bdc986c945b09241faf105fefb344561",
+  "local_partition_md5": "8876158e02e2167e67674b4cb8c3ee2b",
+  "num_nodes": 2449029,
+  "P": 4,
+  "pid": 2,
+  "feat_dim": 100,
+  "feat_dtype": "torch.float32",
+  "batch_size": 2000,
+  "fan_out": "10,25",
+  "num_epochs": 2,
+  "bpe": 25,
+  "seed": 0,
+  "n_train_local": 49154,
+  "n_batches": 50,
+  "digest": "eb3d7eb57e36c2eab846129a6d2c35e7",
+  "epoch_files": [
+    "trace_part2_ep000.npz",
+    "trace_part2_ep001.npz"
+  ],
+  "collected_t": 1784158557.818627
+}

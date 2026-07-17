@@ -24,19 +24,35 @@ import time
 
 
 class FlightRecorder(threading.Thread):
-    def __init__(self, out_path, interval_s=1.0, iface="eno1", gpu_index=None):
+    def __init__(self, out_path, interval_s=1.0, iface="eno1", gpu_index=None,
+                 rank=None):
         super().__init__(daemon=True, name="flight-recorder")
         self.out_path = out_path
         self.interval_s = float(interval_s)
         self.iface = iface
+        self.rank = rank
         self._stop_evt = threading.Event()
 
+        # Node-source ownership: with >1 rank per node, only ONE recorder may
+        # record node-level sources (NIC/CPU/RAPL) or they would be double
+        # counted downstream. First recorder to claim the per-node lockfile
+        # wins; the others record GPU only. Stale locks (dead pid) are taken
+        # over.
+        self._lock_path = os.path.join(
+            "/tmp", f"flight_recorder_node.{iface}.lock")
+        self.node_sources = self._claim_node_sources()
+
         nic_dir = f"/sys/class/net/{iface}/statistics"
-        self._nic = nic_dir if os.path.isdir(nic_dir) else None
+        self._nic = nic_dir if (self.node_sources and
+                                os.path.isdir(nic_dir)) else None
 
         self._rapl = [p for p in
                       sorted(glob.glob("/sys/class/powercap/intel-rapl*/energy_uj"))
-                      if os.access(p, os.R_OK)]
+                      if os.access(p, os.R_OK)] if self.node_sources else []
+        # counter wrap bound per domain, for offline rollover correction
+        self._rapl_max = [self._read_int(
+            os.path.join(os.path.dirname(p), "max_energy_range_uj"))
+            for p in self._rapl]
 
         self._nvml = None
         self._gpu_handles = []
@@ -51,6 +67,35 @@ class FlightRecorder(threading.Thread):
         except Exception:
             self._nvml = None
 
+    def _claim_node_sources(self):
+        try:
+            fd = os.open(self._lock_path,
+                         os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+            os.write(fd, str(os.getpid()).encode())
+            os.close(fd)
+            return True
+        except FileExistsError:
+            try:
+                holder = int(open(self._lock_path).read().strip())
+                if holder != os.getpid() and not os.path.exists(
+                        f"/proc/{holder}"):
+                    os.unlink(self._lock_path)      # stale — take over
+                    return self._claim_node_sources()
+            except Exception:
+                pass
+            return False
+        except Exception:
+            return True    # lockfile unavailable: record rather than lose data
+
+    def _release_node_sources(self):
+        if not self.node_sources:
+            return
+        try:
+            if int(open(self._lock_path).read().strip()) == os.getpid():
+                os.unlink(self._lock_path)
+        except Exception:
+            pass
+
     @staticmethod
     def _read_int(path):
         try:
@@ -60,15 +105,16 @@ class FlightRecorder(threading.Thread):
             return None
 
     def _sample(self):
-        rec = {"t": time.time()}
+        rec = {"t": time.time(), "tm": time.monotonic_ns()}
         if self._nic:
             rec["rx"] = self._read_int(os.path.join(self._nic, "rx_bytes"))
             rec["tx"] = self._read_int(os.path.join(self._nic, "tx_bytes"))
-        try:
-            with open("/proc/stat") as f:
-                rec["cpu"] = f.readline().strip()
-        except Exception:
-            pass
+        if self.node_sources:
+            try:
+                with open("/proc/stat") as f:
+                    rec["cpu"] = f.readline().strip()
+            except Exception:
+                pass
         if self._rapl:
             rec["rapl"] = [self._read_int(p) for p in self._rapl]
         if self._nvml:
@@ -87,9 +133,12 @@ class FlightRecorder(threading.Thread):
         return rec
 
     def _meta(self):
-        meta = {"meta": True, "t": time.time(), "iface": self.iface,
-                "interval_s": self.interval_s,
+        meta = {"meta": True, "t": time.time(), "tm": time.monotonic_ns(),
+                "iface": self.iface, "interval_s": self.interval_s,
                 "nic": bool(self._nic), "rapl_domains": self._rapl,
+                "rapl_max_range_uj": self._rapl_max,
+                "node_sources": self.node_sources,
+                "rank": self.rank, "pid": os.getpid(),
                 "gpus": len(self._gpu_handles), "host": os.uname().nodename}
         try:
             meta["chrony"] = subprocess.run(
@@ -112,7 +161,9 @@ class FlightRecorder(threading.Thread):
 
     def stop(self, timeout=5.0):
         self._stop_evt.set()
-        self.join(timeout=timeout)
+        if self.ident is not None:      # join only if the thread ever started
+            self.join(timeout=timeout)
+        self._release_node_sources()
         if self._nvml:
             try:
                 self._nvml.nvmlShutdown()

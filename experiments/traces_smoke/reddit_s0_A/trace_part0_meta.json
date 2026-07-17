@@ -1,0 +1,24 @@
+{
+  "dataset": "reddit",
+  "part_config": "/home/cc/distgnn/data/reddit/reddit.json",
+  "part_config_md5": "ee6e1692aafc5b0e0557fecea6591ec2",
+  "local_partition_md5": "b455684750519dd658eb3a1fa36c8f74",
+  "num_nodes": 232965,
+  "P": 4,
+  "pid": 0,
+  "feat_dim": 602,
+  "feat_dtype": "torch.float32",
+  "batch_size": 2000,
+  "fan_out": "10,25",
+  "num_epochs": 2,
+  "bpe": 20,
+  "seed": 0,
+  "n_train_local": 38358,
+  "n_batches": 40,
+  "digest": "ab0635a026e7f32b98bdcc18aa169449",
+  "epoch_files": [
+    "trace_part0_ep000.npz",
+    "trace_part0_ep001.npz"
+  ],
+  "collected_t": 1784158189.10664
+}

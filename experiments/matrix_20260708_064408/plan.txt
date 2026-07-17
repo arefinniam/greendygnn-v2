@@ -1,0 +1,12 @@
+reddit|c1_100|default_dgl|seed2
+reddit|c1_100|default_dgl|seed0
+reddit|c1_100|default_dgl|seed1
+reddit|c1_50|default_dgl|seed1
+reddit|c1_50|default_dgl|seed0
+reddit|c1_50|default_dgl|seed2
+ogbn-products|c1_100|default_dgl|seed0
+ogbn-products|c1_100|default_dgl|seed1
+ogbn-products|c1_100|default_dgl|seed2
+ogbn-products|c1_50|default_dgl|seed0
+ogbn-products|c1_50|default_dgl|seed2
+ogbn-products|c1_50|default_dgl|seed1

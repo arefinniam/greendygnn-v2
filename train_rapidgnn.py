@@ -63,7 +63,7 @@ def main(args):
         from flight_recorder import FlightRecorder
         fr = FlightRecorder(os.path.join(args.out_dir,
                                          f"flight_part{pid}.jsonl"),
-                            gpu_index=dev_idx)
+                            gpu_index=dev_idx, rank=pid)
         fr.start()
     set_gpu_frequency("min", dev_idx)
     dist_lock = threading.Lock()
@@ -85,7 +85,13 @@ def main(args):
     sampler = DistSampler(g, train_nid, args.fan_out, args.batch_size,
                           generator=gen)
     bg = BackgroundSampler(sampler, sbuf, g, lmask, start_batch_id=0,
-                           dist_lock=dist_lock, num_epochs=args.num_epochs)
+                           dist_lock=dist_lock, num_epochs=args.num_epochs,
+                           digest_path=(os.path.join(
+                               args.out_dir, f"sampler_digest_part{pid}.json")
+                               if args.trace_digest else None),
+                           trace_dump_dir=(os.path.join(
+                               args.out_dir, "trace_dump")
+                               if args.trace_dump else None))
     bg.start()
     bpe = len(sampler)
     tot = bpe * args.num_epochs
@@ -197,4 +203,12 @@ if __name__ == "__main__":
     p.add_argument("--sync_cache", action="store_true")
     p.add_argument("--flight_recorder", action="store_true",
                    help="1Hz node time series (NIC/CPU/RAPL/GPU) to out_dir")
+    p.add_argument("--trace_digest", action="store_true",
+                   help="rolling digest of the sampled remote-access stream "
+                        "(live side of the trace-equivalence check)")
+    p.add_argument("--trace_dump", action="store_true",
+                   help="dump this run's remote-access stream as Trace npz "
+                        "per epoch to out_dir/trace_dump (Layer-1 exactness: "
+                        "distributed sampling is not reproducible across "
+                        "runs, so traces must come from the run itself)")
     main(p.parse_args())

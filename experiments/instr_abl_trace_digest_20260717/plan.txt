@@ -1,0 +1,2 @@
+reddit|clean|static_w16|seed0
+ogbn-products|clean|static_w16|seed0

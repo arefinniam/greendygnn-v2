@@ -15,10 +15,14 @@ read decision_log / rebuild_log (ground truth), never this script.
 
 Script grammar:
   "16@0,128@480,16@960"   explicit: W@start_planned_batch (ascending starts)
-  "random:SEED:MIN:MAX"   seeded random walk: dwell ~ U[MIN,MAX] planned
-                          batches, next W drawn from the ladder EXCLUDING the
-                          current W (every decision boundary crossing is a
-                          real transition). Deterministic given SEED.
+  "random:SEED:MIN:MAX"   seeded random walk: W is HELD until the dwell
+                          threshold (~U[MIN,MAX] planned batches) is crossed;
+                          each switch then draws from the ladder EXCLUDING the
+                          current W, so every SWITCH is a real transition
+                          (boundaries within a dwell keep the same W).
+                          Deterministic given SEED. Because actions have
+                          variable duration, a switch requested at planned
+                          batch b lands at the first boundary >= b.
 """
 
 import random
