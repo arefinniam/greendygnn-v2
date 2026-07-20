@@ -1,0 +1,13 @@
+{"action": "teardown", "cmd": "sudo tc qdisc del dev eno1 root 2>/dev/null || true", "node": "gnn1", "rc": 0, "t": 1784399155.6064293}
+{"action": "teardown", "cmd": "pkill -9 -x iperf3 2>/dev/null || true", "node": "gnn1", "rc": 0, "t": 1784399155.6291697}
+{"action": "teardown", "cmd": "sudo tc qdisc del dev eno1 root 2>/dev/null || true", "node": "gnn2", "rc": 0, "t": 1784399156.0005405}
+{"action": "teardown", "cmd": "pkill -9 -x iperf3 2>/dev/null || true", "node": "gnn2", "rc": 0, "t": 1784399156.388241}
+{"action": "teardown", "cmd": "sudo tc qdisc del dev eno1 root 2>/dev/null || true", "node": "gnn3", "rc": 0, "t": 1784399156.7668726}
+{"action": "teardown", "cmd": "pkill -9 -x iperf3 2>/dev/null || true", "node": "gnn3", "rc": 0, "t": 1784399157.1603231}
+{"action": "teardown", "cmd": "sudo tc qdisc del dev eno1 root 2>/dev/null || true", "node": "gnn4", "rc": 0, "t": 1784399157.5985618}
+{"action": "teardown", "cmd": "pkill -9 -x iperf3 2>/dev/null || true", "node": "gnn4", "rc": 0, "t": 1784399158.0455317}
+{"action": "verify_teardown", "cmd": "tc qdisc show dev eno1", "node": "gnn1", "rc": 0, "t": 1784399158.050737}
+{"action": "verify_teardown", "cmd": "tc qdisc show dev eno1", "node": "gnn2", "rc": 0, "t": 1784399158.426889}
+{"action": "verify_teardown", "cmd": "tc qdisc show dev eno1", "node": "gnn3", "rc": 0, "t": 1784399158.8035488}
+{"action": "verify_teardown", "cmd": "tc qdisc show dev eno1", "node": "gnn4", "rc": 0, "t": 1784399159.2486}
+{"action": "teardown_verified", "ok": true, "t": 1784399159.2487252}

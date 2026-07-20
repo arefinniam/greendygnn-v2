@@ -58,9 +58,14 @@ if __name__ == "__main__":
     # Verify a live trace dump against its digest record:
     #   python3 trace_digest.py <dump_dir> [digest_json]
     # digest_json defaults to the dump dir's own trace_part*_meta.json.
+    # When a per-rank digest_json (sampler_digest_part{N}.json or
+    # trace_part{N}_meta.json) is given, ONLY that rank's npz files are folded
+    # -- required once all ranks' dumps are gathered into one dir, else the
+    # glob would concatenate every rank and never match a single-rank digest.
     import argparse
     import glob
     import os
+    import re
     import sys
 
     ap = argparse.ArgumentParser()
@@ -68,11 +73,13 @@ if __name__ == "__main__":
     ap.add_argument("digest_json", nargs="?", default=None)
     a = ap.parse_args()
 
-    npz = sorted(glob.glob(os.path.join(a.dump_dir, "trace_part*_ep*.npz")))
-    if not npz:
-        sys.exit(f"no trace npz files in {a.dump_dir}")
     ref_path = a.digest_json or sorted(
         glob.glob(os.path.join(a.dump_dir, "trace_part*_meta.json")))[0]
+    m = re.search(r"part(\d+)", os.path.basename(ref_path))
+    pat = f"trace_part{m.group(1)}_ep*.npz" if m else "trace_part*_ep*.npz"
+    npz = sorted(glob.glob(os.path.join(a.dump_dir, pat)))
+    if not npz:
+        sys.exit(f"no trace npz files ({pat}) in {a.dump_dir}")
     ref = json.load(open(ref_path))
     h, nb = digest_from_traces(npz)
     ok = (h.hexdigest() == ref["digest"]

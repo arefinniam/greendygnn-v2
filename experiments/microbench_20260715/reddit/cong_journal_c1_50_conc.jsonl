@@ -30,3 +30,19 @@
 {"action": "verify_teardown", "cmd": "tc qdisc show dev eno1", "node": "gnn3", "rc": 0, "t": 1784240608.8793578}
 {"action": "verify_teardown", "cmd": "tc qdisc show dev eno1", "node": "gnn4", "rc": 0, "t": 1784240609.317623}
 {"action": "teardown_verified", "ok": true, "t": 1784240609.3177712}
+{"action": "apply_c1", "cmd": "sudo tc qdisc del dev eno1 root 2>/dev/null || true; sudo tc qdisc add dev eno1 root tbf rate 50mbit burst 32kbit latency 400ms", "node": "gnn4", "rc": 0, "t": 1784339800.689403}
+{"action": "verify_applied", "cmd": "tc qdisc show dev eno1", "node": "gnn4", "rc": 0, "t": 1784339801.1160805}
+{"action": "applied", "cls": "c1", "delay": null, "jitter": null, "loss": null, "rate": "50mbit", "t": 1784339801.1161559, "victims": ["gnn4"]}
+{"action": "teardown", "cmd": "sudo tc qdisc del dev eno1 root 2>/dev/null || true", "node": "gnn1", "rc": 0, "t": 1784345201.1929817}
+{"action": "teardown", "cmd": "pkill -9 -x iperf3 2>/dev/null || true", "node": "gnn1", "rc": 0, "t": 1784345201.2187848}
+{"action": "teardown", "cmd": "sudo tc qdisc del dev eno1 root 2>/dev/null || true", "node": "gnn2", "rc": 0, "t": 1784345201.6138754}
+{"action": "teardown", "cmd": "pkill -9 -x iperf3 2>/dev/null || true", "node": "gnn2", "rc": 0, "t": 1784345202.0011384}
+{"action": "teardown", "cmd": "sudo tc qdisc del dev eno1 root 2>/dev/null || true", "node": "gnn3", "rc": 0, "t": 1784345202.428959}
+{"action": "teardown", "cmd": "pkill -9 -x iperf3 2>/dev/null || true", "node": "gnn3", "rc": 0, "t": 1784345202.8286028}
+{"action": "teardown", "cmd": "sudo tc qdisc del dev eno1 root 2>/dev/null || true", "node": "gnn4", "rc": 0, "t": 1784345203.3571193}
+{"action": "teardown", "cmd": "pkill -9 -x iperf3 2>/dev/null || true", "node": "gnn4", "rc": 0, "t": 1784345203.8204494}
+{"action": "verify_teardown", "cmd": "tc qdisc show dev eno1", "node": "gnn1", "rc": 0, "t": 1784345203.8270037}
+{"action": "verify_teardown", "cmd": "tc qdisc show dev eno1", "node": "gnn2", "rc": 0, "t": 1784345204.2081983}
+{"action": "verify_teardown", "cmd": "tc qdisc show dev eno1", "node": "gnn3", "rc": 0, "t": 1784345204.592368}
+{"action": "verify_teardown", "cmd": "tc qdisc show dev eno1", "node": "gnn4", "rc": 0, "t": 1784345205.0252528}
+{"action": "teardown_verified", "ok": true, "t": 1784345205.0254126}

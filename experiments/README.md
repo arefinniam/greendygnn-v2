@@ -13,6 +13,8 @@ not checked in here.
 - `wsweep_20260711_170421/` — Step-0 window-size sweep (176 runs).
 - `transitions_20260715/` — scripted W-transition campaign (24 runs, r1-r3 x
   2 datasets x 4 steady conditions).
+- `transitions_v2_20260717/` — re-run of the transition campaign (24 runs,
+  same grid as `transitions_20260715`) on the post-ablation code.
 - `instr_overhead_20260715/`, `instr_baseline_20260716/`,
   `instr_abl_flight_recorder_20260717/`, `instr_abl_trace_digest_20260717/`,
   `instr_abl_trace_dump_20260717/`, `instr_abl_tracedump_fixed_20260717/`,
